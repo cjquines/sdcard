@@ -1,9 +1,6 @@
 fix:
 
-- don't use date-fns, holy it pollutes the namespace...
 - get a proper CSS-in-JS solution
-- fix silly parser shenanigans
-    - (like making it work with non-keep-all-pictures sequences)
 
 feat:
 
@@ -32,7 +29,9 @@ feat:
 - sequence metadata:
     - more notes! other than just the comment! and things you can click like hard or easy or whatever
     - measure how long it takes, how long each call takes
+    - when they were used
 - call metadata:
     - parse calls...
     - highlight less frequent calls in the level/tip view, use them to name sequences without comments
+        - maybe we can even highlight on-level calls or something idk
     - call frequencies
