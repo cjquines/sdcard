@@ -32,7 +32,7 @@ function App() {
         <button type="submit">submit</button>
       </form>
       <ul>
-        {sequences.map(({ header: { date }, comment }, i) => (
+        {sequences.map(({ date, comment }, i) => (
           <li key={date.toString()}>
             <button
               onClick={() => {

@@ -1,4 +1,4 @@
-import { Call, DANCER_MAP, FACING_MAP, Formation, Sequence } from "./types";
+import { Call, DANCER_MAP, FACING_MAP, Formation, LEVEL_MAP, Level, Sequence } from "./types";
 
 /** "Sat May  6 02:22:24 2023" */
 function parseDate(date: string): Date {
@@ -123,15 +123,14 @@ function parseBlock(block: string[]): Call {
 
 function parseSequence(seqStr: string): Sequence {
   const [headerStr, ...body] = seqStr.trim().split("\n");
-  const [dateStr, version, level] = headerStr.split("     ");
+  const [dateStr, version, levelStr] = headerStr.split("     ");
   const [commentBlock, ...blocks] = chunkBlocks(body);
+  const level = LEVEL_MAP.get(levelStr) ?? Level.ALL;
 
   return {
-    header: {
-      date: parseDate(dateStr),
-      version,
-      level,
-    },
+    date: parseDate(dateStr),
+    version,
+    level,
     comment: parseComment(commentBlock),
     calls: blocks.map(parseBlock),
   };

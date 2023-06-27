@@ -5,7 +5,7 @@ fix:
 feat:
 
 - custom json representation...
-- level view:
+- file/dance view:
     - cards: date, comment/first call, length, idk
     - allow sorting into tips (drag and drop)
     - a tip toolbar, "unsorted", "tip 1", "tip 2", etc.
@@ -14,6 +14,7 @@ feat:
     - sequence 0 should always be just "at home"
     - numbered list of sequences, going horizontally: comment, list of calls truncated
     - can drag to rearrange
+    - heads/sides changing
 - sequence view:
     - more cards, in a filmstrip view kinda, going from top to bottom
     - each card has LARGE CALL NAME, then formation picture underneath post-call, maybe warnings too

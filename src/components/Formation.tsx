@@ -1,6 +1,7 @@
 import { Formation } from "../lib/types";
 
-function Formation({ formation }: { formation: Formation }) {
+function Formation({ formation }: { formation?: Formation }) {
+  if (!formation) return null;
   const dancers = [...formation.entries()].map(
     ([dancer, { facing, row, col }]) => {
       return (
