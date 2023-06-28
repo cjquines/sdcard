@@ -13,6 +13,7 @@ export enum Dancer {
 export const DANCER_MAP = new Map<string, Dancer>(
   Object.values(Dancer).map((val) => [`${val}`, val] as const)
 );
+export const isDancer = (s: string): s is Dancer => DANCER_MAP.has(s);
 
 /** Facing position; couple #1 starts facing BACK, #2 facing LEFT, etc. */
 export enum Facing {
@@ -25,6 +26,7 @@ export enum Facing {
 export const FACING_MAP = new Map<string, Facing>(
   Object.values(Facing).map((val) => [`${val}`, val] as const)
 );
+export const isFacing = (s: string): s is Facing => FACING_MAP.has(s);
 
 /** A dancer's position has a direction (facing) and a location (row/col). */
 export type Position = {
@@ -37,7 +39,7 @@ export type Position = {
  * A formation is a map from each dancer to their position. All dancers should
  * have a mapped position.
  */
-export type Formation = Map<Dancer, Position>;
+export type Formation = { [dancer in Dancer]: Position };
 
 /** A call is all the information SD gives us about a call. */
 export type Call = {
@@ -70,6 +72,7 @@ export enum Level {
 export const LEVEL_MAP = new Map<string, Level>(
   Object.values(Level).map((val) => [`${val}`, val] as const)
 );
+export const isLevel = (s: string): s is Level => LEVEL_MAP.has(s);
 
 /** A sequence is a group of calls SD exports. */
 export type Sequence = {
@@ -96,9 +99,8 @@ export type Dance = {
   sequences: Sequence[];
 };
 
-/** A file represents a physical database file. */
-export type File = {
-  id: string;
+/** A DB represents a physical database file. */
+export type DB = {
   name: string;
   comment: string;
   dances: Dance[];

@@ -68,20 +68,20 @@ function parseComment(commentBlock: string[]): string {
  * in the ideal world we would map people to slots in a named formation, maybe
  */
 function parseFormation(rawFormation: string[]): Formation | undefined {
-  const formation: Formation = new Map();
+  const formation: Partial<Formation> = {};
   rawFormation.forEach((line, row) => {
     line.split("").forEach((char, col) => {
       const facing = FACING_MAP.get(char);
       if (!facing) return;
       const dancer = DANCER_MAP.get(line.slice(col - 2, col));
       if (!dancer) return;
-      formation.set(dancer, { facing, row, col });
+      formation[dancer] = { facing, row, col };
     });
   });
 
   // check the existence of each dancer
   const missing = Array.from(DANCER_MAP.values()).filter(
-    (dancer) => !formation.has(dancer)
+    (dancer) => !formation[dancer]
   );
   if (missing.length > 0) {
     if (missing.length < DANCER_MAP.size) {
@@ -90,7 +90,7 @@ function parseFormation(rawFormation: string[]): Formation | undefined {
     return undefined;
   }
 
-  return formation;
+  return formation as Formation;
 }
 
 /** a block is a single call plus any info given about the call */
