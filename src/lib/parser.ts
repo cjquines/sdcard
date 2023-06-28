@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import {
   Call,
   DANCER_MAP,
@@ -150,6 +151,7 @@ function parseSequence(seqStr: string): Sequence {
   const level = LEVEL_MAP.get(levelStr) ?? Level.ALL;
 
   return {
+    id: nanoid(),
     date: parseDate(dateStr),
     version,
     level,

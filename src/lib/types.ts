@@ -73,6 +73,7 @@ export const LEVEL_MAP = new Map<string, Level>(
 
 /** A sequence is a group of calls SD exports. */
 export type Sequence = {
+  id: string;
   date: Date;
   version: string;
   level: Level;
@@ -82,12 +83,14 @@ export type Sequence = {
 
 /** A tip is a list of sequences. */
 export type Tip = {
+  id: string;
   comment: string;
   sequences: Sequence[];
 };
 
 /** A dance is a list of tips. */
 export type Dance = {
+  id: string;
   comment: string;
   tips: Tip[];
   sequences: Sequence[];
@@ -95,6 +98,7 @@ export type Dance = {
 
 /** A file represents a physical database file. */
 export type File = {
+  id: string;
   name: string;
   comment: string;
   dances: Dance[];
