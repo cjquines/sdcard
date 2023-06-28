@@ -10,9 +10,10 @@ import {
 } from "./types";
 
 /** "Sat May  6 02:22:24 2023" */
-function parseDate(date: string): Date {
-  const [, month, day, hms, year] = date.split(" ").filter((s) => s !== "");
-  const [hours, minutes, seconds] = hms.split(":").map(parseInt);
+function parseDate(date: string): number {
+  const [, month, dayStr, hms, yearStr] = date.split(" ").filter((s) => s !== "");
+  const [day, year] = [dayStr, yearStr].map(n => parseInt(n));
+  const [hours, minutes, seconds] = hms.split(":").map(n => parseInt(n));
 
   const monthIndex = {
     Jan: 0,
@@ -27,16 +28,16 @@ function parseDate(date: string): Date {
     Oct: 9,
     Nov: 10,
     Dec: 11,
-  }[month];
+  }[month] ?? 0;
 
   return new Date(
-    parseInt(year),
-    monthIndex ?? 0,
-    parseInt(day),
+    year,
+    monthIndex,
+    day,
     hours,
     minutes,
     seconds
-  );
+  ).getTime();
 }
 
 /** split across \n\n kinda */

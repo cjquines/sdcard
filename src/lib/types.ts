@@ -77,7 +77,8 @@ export const isLevel = (s: string): s is Level => LEVEL_MAP.has(s);
 /** A sequence is a group of calls SD exports. */
 export type Sequence = {
   id: string;
-  date: Date;
+  /** As millis since Unix epoch, use Date to convert. */
+  date: number;
   version: string;
   level: Level;
   comment: string;
