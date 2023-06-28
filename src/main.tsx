@@ -2,12 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import Sortable, { MultiDrag } from "sortablejs";
 
 import App from "./App.tsx";
-import Dance from "./components/Dance.tsx";
-import DB from "./components/DB.tsx";
-import Sequence from "./components/Sequence.tsx";
-import Tip from "./components/Tip.tsx";
+import DanceView from "./components/DanceView.tsx";
+import DBView from "./components/DBView.tsx";
+import SequenceView from "./components/SequenceView.tsx";
+import TipView from "./components/TipView.tsx";
 
 const theme = extendTheme({
   fonts: {
@@ -17,9 +18,9 @@ const theme = extendTheme({
 });
 
 const paths = ([
-  ["dance/:danceId", () => <Dance />],
-  ["tip/:tipId", () => <Tip />],
-  ["sequence/:seqId", () => <Sequence />],
+  ["dance/:danceId", () => <DanceView />],
+  ["tip/:tipId", () => <TipView />],
+  ["sequence/:seqId", () => <SequenceView />],
 ] as const)
   .reduce<(readonly [string, () => JSX.Element])[][]>(
     (acc, cur) => acc.concat(acc.map((set) => [...set, cur])),
@@ -38,12 +39,14 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <DB />,
+        element: <DBView />,
       },
       ...paths,
     ],
   },
 ]);
+
+Sortable.mount(new MultiDrag());
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

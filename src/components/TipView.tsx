@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 
-export default function Tip() {
+export default function TipView() {
   const { tipId } = useParams();
   return <>Tip: {tipId}</>;
 }

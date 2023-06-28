@@ -61,7 +61,7 @@ export enum Level {
   PLUS = "Plus",
   A1 = "A1",
   A2 = "A2",
-  C1 = "A1",
+  C1 = "C1",
   C2 = "C2",
   C3A = "C3A",
   C3 = "C3B",

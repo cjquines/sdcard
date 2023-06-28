@@ -4,7 +4,6 @@ fix:
 
 feat:
 
-- zustand (zustood?)
 - file/dance view:
     - cards: date, comment/first call, length, idk
     - allow sorting into tips (drag and drop)

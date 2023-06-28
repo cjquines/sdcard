@@ -8,37 +8,7 @@ import {
   Level,
   Sequence,
 } from "./types";
-
-/** "Sat May  6 02:22:24 2023" */
-function parseDate(date: string): number {
-  const [, month, dayStr, hms, yearStr] = date.split(" ").filter((s) => s !== "");
-  const [day, year] = [dayStr, yearStr].map(n => parseInt(n));
-  const [hours, minutes, seconds] = hms.split(":").map(n => parseInt(n));
-
-  const monthIndex = {
-    Jan: 0,
-    Feb: 1,
-    Mar: 2,
-    Apr: 3,
-    May: 4,
-    Jun: 5,
-    Jul: 6,
-    Aug: 7,
-    Sep: 8,
-    Oct: 9,
-    Nov: 10,
-    Dec: 11,
-  }[month] ?? 0;
-
-  return new Date(
-    year,
-    monthIndex,
-    day,
-    hours,
-    minutes,
-    seconds
-  ).getTime();
-}
+import { parseDate } from "./dates";
 
 /** split across \n\n kinda */
 function chunkBlocks(lines: string[]): string[][] {
