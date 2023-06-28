@@ -1,4 +1,12 @@
-import { Call, DANCER_MAP, FACING_MAP, Formation, LEVEL_MAP, Level, Sequence } from "./types";
+import {
+  Call,
+  DANCER_MAP,
+  FACING_MAP,
+  Formation,
+  LEVEL_MAP,
+  Level,
+  Sequence,
+} from "./types";
 
 /** "Sat May  6 02:22:24 2023" */
 function parseDate(date: string): Date {
@@ -58,8 +66,7 @@ function parseComment(commentBlock: string[]): string {
  *
  * in the ideal world we would map people to slots in a named formation, maybe
  */
-function parseFormation(rawFormation: string[]): Formation {
-  console.log(rawFormation);
+function parseFormation(rawFormation: string[]): Formation | undefined {
   const formation: Formation = new Map();
   rawFormation.forEach((line, row) => {
     line.split("").forEach((char, col) => {
@@ -70,7 +77,18 @@ function parseFormation(rawFormation: string[]): Formation {
       formation.set(dancer, { facing, row, col });
     });
   });
-  console.log(formation);
+
+  // check the existence of each dancer
+  const missing = Array.from(DANCER_MAP.values()).filter(
+    (dancer) => !formation.has(dancer)
+  );
+  if (missing.length > 0) {
+    if (missing.length < DANCER_MAP.size) {
+      throw new Error("some dancers can't be found?");
+    }
+    return undefined;
+  }
+
   return formation;
 }
 
@@ -106,18 +124,22 @@ function parseBlock(block: string[]): Call {
 
   // get formation image, if it exists
   const rawFormation = [];
-  while (!line.done) {
+  while (!line.done && !line.value.includes("45 degrees")) {
     if (line.value.trim() !== "") {
       rawFormation.push(line.value);
     }
     line = iter.next();
   }
 
+  // if we have a note...
+  const rotated45 = !line.done && line.value.includes("45 degrees");
+
   return {
     comment,
     call,
     warnings,
     formation: parseFormation(rawFormation),
+    rotated45,
   };
 }
 

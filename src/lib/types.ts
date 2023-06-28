@@ -50,7 +50,7 @@ export type Call = {
   /** Formation picture, if SD printed it. */
   formation?: Formation;
   /** Is the actual formation rotated 45 degrees clockwise? */
-  rotated45?: boolean;
+  rotated45: boolean;
 };
 
 /** A level, as defined by what SD prints as a level header. */
@@ -86,7 +86,7 @@ export type Tip = {
   sequences: Sequence[];
 };
 
-/** A dance is a list of tips (and unsorted sequences). */
+/** A dance is a list of tips. */
 export type Dance = {
   comment: string;
   tips: Tip[];
