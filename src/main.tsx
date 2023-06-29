@@ -1,10 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createHashRouter } from "react-router-dom";
 
 import App from "./App.tsx";
 import DBView from "./components/DBView.tsx";
+import SequenceView from "./components/SequenceView.tsx";
 
 const theme = extendTheme({
   fonts: {
@@ -13,7 +14,7 @@ const theme = extendTheme({
   },
 });
 
-const router = createBrowserRouter(
+const router = createHashRouter(
   [
     {
       path: "/",
@@ -23,12 +24,13 @@ const router = createBrowserRouter(
           path: "",
           element: <DBView />,
         },
+        {
+          path: "sequence/:seqId",
+          element: <SequenceView />,
+        },
       ],
     },
   ],
-  {
-    basename: window.location.pathname.replace(/(\/[^/]+)$/, ""),
-  }
 );
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

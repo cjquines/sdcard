@@ -1,5 +1,3 @@
-import { Brand, make } from "ts-brand";
-
 /** A dancer is one of the eight people in the square. */
 export enum Dancer {
   B1 = "1B",
@@ -77,9 +75,9 @@ export const LEVEL_MAP = new Map<string, Level>(
 export const isLevel = (s: string): s is Level => LEVEL_MAP.has(s);
 
 /** A raw sequence is a group of calls SD exports. */
-export type RawSequence = {
+type RawSequence = {
   /** ID assigned when we first import the sequence. */
-  id: Brand<string, RawSequence>;
+  id: string;
   /** Date sequence is exported by SD, as millis since Unix epoch. */
   date: number;
   version: string;
@@ -88,39 +86,28 @@ export type RawSequence = {
   calls: Call[];
 };
 
-export type SequenceId = RawSequence["id"];
-export const SequenceId = make<SequenceId>();
-
 /**
  * A category is a collection of exclusive options, e.g. difficulty, with
  * options like easy, medium, hard.
  */
 export type Category = {
-  name: Brand<string, Category>;
+  category: string;
   comment: string;
-  options: Brand<string, CategoryName>[];
+  options: string[];
 };
-
-export type CategoryName = Category["name"];
-export type CategoryOption = Category["options"][number];
-export const CategoryName = make<CategoryName>();
-export const CategoryOption = make<CategoryOption>();
 
 /**
  * A tag is anything that can be assigned to a sequence, e.g. a tag for every
  * sequence called at a certain dance.
  */
 export type Tag = {
-  name: Brand<string, Tag>;
+  tag: string;
   comment: string;
 };
 
-export type TagName = Tag["name"];
-export const TagName = make<TagName>();
-
 export type Metadata = {
   categories: {
-    [category: CategoryName]: CategoryOption;
+    [category: string]: string;
   };
   tags: Tag[];
 };
@@ -132,8 +119,7 @@ export type Sequence = RawSequence & Metadata;
 export type DB = {
   name: string;
   comment: string;
-  newSequences: RawSequence[];
-  sequences: Sequence[];
-  categories: Category[];
-  tags: Tag[];
+  sequences: { [id: string]: Sequence };
+  categories: { [category: string]: Category };
+  tags: { [tag: string]: Tag };
 };

@@ -6,8 +6,7 @@ import {
   Formation,
   LEVEL_MAP,
   Level,
-  RawSequence,
-  SequenceId,
+  Sequence,
 } from "./types";
 import { parseDate } from "./dates";
 
@@ -116,22 +115,24 @@ function parseBlock(block: string[]): Call {
   };
 }
 
-function parseRawSequence(seqStr: string): RawSequence {
+function parseSequence(seqStr: string): Sequence {
   const [headerStr, ...body] = seqStr.trim().split("\n");
   const [dateStr, version, levelStr] = headerStr.split("     ");
   const [commentBlock, ...blocks] = chunkBlocks(body);
   const level = LEVEL_MAP.get(levelStr) ?? Level.ALL;
 
   return {
-    id: SequenceId(nanoid()),
+    id: nanoid(),
     date: parseDate(dateStr),
     version,
     level,
     comment: parseComment(commentBlock),
     calls: blocks.map(parseBlock),
+    categories: {},
+    tags: [],
   };
 }
 
-export function parseFile(file: string): RawSequence[] {
-  return file.split("\x0c").map(parseRawSequence);
+export function parseFile(file: string): Sequence[] {
+  return file.split("\x0c").map(parseSequence);
 }

@@ -1,8 +1,8 @@
 import { Flex, Link, Tag, Text } from "@chakra-ui/react";
-import { RawSequence } from "../lib/types";
+import { Sequence } from "../lib/types";
 import { formatDate } from "../lib/dates";
 
-export default function SequenceCard({ seq }: { seq: RawSequence }) {
+export default function SequenceCard({ seq }: { seq: Sequence }) {
   const { date, level, comment, calls } = seq;
 
   return (
