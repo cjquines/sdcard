@@ -1,8 +1,8 @@
-import { Flex, Tag, Text } from "@chakra-ui/react";
-import { Sequence } from "../lib/types";
+import { Flex, Link, Tag, Text } from "@chakra-ui/react";
+import { RawSequence } from "../lib/types";
 import { formatDate } from "../lib/dates";
 
-export default function SequenceCard({ seq }: { seq: Sequence }) {
+export default function SequenceCard({ seq }: { seq: RawSequence }) {
   const { date, level, comment, calls } = seq;
 
   return (
@@ -10,7 +10,7 @@ export default function SequenceCard({ seq }: { seq: Sequence }) {
       p="2"
       boxShadow="xs"
       gap="2"
-      maxW="sm"
+      maxW="md"
       align="baseline"
       sx={{
         "&.sortable-ghost": { background: "gray.100" },
@@ -20,10 +20,15 @@ export default function SequenceCard({ seq }: { seq: Sequence }) {
       <Tag className="handle" cursor="move">
         {level}
       </Tag>
-      <Text color="gray">
-        <time dateTime={new Date(date).toISOString()}>{formatDate(date)}</time>
-      </Text>
-      {comment}
+      <Link>
+        <Text color="gray" display="inline">
+          <time dateTime={new Date(date).toISOString()}>
+            {formatDate(date)}
+          </time>
+          {comment ? ": " : null}
+        </Text>
+        {comment ? <Text display="inline">{comment}</Text> : null}
+      </Link>
       <Text color="gray" fontSize="sm" flex="1" noOfLines={1}>
         {calls.map((call) => call.call).join(" / ")}
       </Text>

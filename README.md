@@ -5,10 +5,11 @@ fix:
 feat:
 
 - file/dance view:
-    - cards: date, comment/first call, length, idk
+    - cards: date, comment/first call, length, difficulty
     - allow sorting into tips (drag and drop)
     - a tip toolbar, "unsorted", "tip 1", "tip 2", etc.
     - clicking a tip will open a column that you can drag cards onto
+    - filtering by e.g. level, date, length, difficulty
 - tip view:
     - sequence 0 should always be just "at home"
     - numbered list of sequences, going horizontally: comment, list of calls truncated
@@ -35,3 +36,8 @@ feat:
     - highlight less frequent calls in the level/tip view, use them to name sequences without comments
         - maybe we can even highlight on-level calls or something idk
     - call frequencies
+
+prior art:
+
+- https://www.ceder.net/csds/
+- see interviews with andy/john

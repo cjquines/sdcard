@@ -1,3 +1,5 @@
+import { Brand, make } from "ts-brand";
+
 /** A dancer is one of the eight people in the square. */
 export enum Dancer {
   B1 = "1B",
@@ -74,10 +76,11 @@ export const LEVEL_MAP = new Map<string, Level>(
 );
 export const isLevel = (s: string): s is Level => LEVEL_MAP.has(s);
 
-/** A sequence is a group of calls SD exports. */
-export type Sequence = {
-  id: string;
-  /** As millis since Unix epoch, use Date to convert. */
+/** A raw sequence is a group of calls SD exports. */
+export type RawSequence = {
+  /** ID assigned when we first import the sequence. */
+  id: Brand<string, RawSequence>;
+  /** Date sequence is exported by SD, as millis since Unix epoch. */
   date: number;
   version: string;
   level: Level;
@@ -85,28 +88,52 @@ export type Sequence = {
   calls: Call[];
 };
 
-/** A tip is a list of sequences. */
-export type Tip = {
-  id: string;
+export type SequenceId = RawSequence["id"];
+export const SequenceId = make<SequenceId>();
+
+/**
+ * A category is a collection of exclusive options, e.g. difficulty, with
+ * options like easy, medium, hard.
+ */
+export type Category = {
+  name: Brand<string, Category>;
   comment: string;
-  sequences: Sequence[];
+  options: Brand<string, CategoryName>[];
 };
 
-/** A dance is a list of tips. */
-export type Dance = {
-  id: string;
+export type CategoryName = Category["name"];
+export type CategoryOption = Category["options"][number];
+export const CategoryName = make<CategoryName>();
+export const CategoryOption = make<CategoryOption>();
+
+/**
+ * A tag is anything that can be assigned to a sequence, e.g. a tag for every
+ * sequence called at a certain dance.
+ */
+export type Tag = {
+  name: Brand<string, Tag>;
   comment: string;
-  tips: Tip[];
-  sequences: Sequence[];
 };
+
+export type TagName = Tag["name"];
+export const TagName = make<TagName>();
+
+export type Metadata = {
+  categories: {
+    [category: CategoryName]: CategoryOption;
+  };
+  tags: Tag[];
+};
+
+/** A sequence is a sequence tagged with metadata. */
+export type Sequence = RawSequence & Metadata;
 
 /** A DB represents a physical database file. */
 export type DB = {
   name: string;
   comment: string;
-  dances: Dance[];
-  /** Tips not organized into dances. */
-  tips: Tip[];
-  /** Sequences not organized into tips. */
+  newSequences: RawSequence[];
   sequences: Sequence[];
+  categories: Category[];
+  tags: Tag[];
 };

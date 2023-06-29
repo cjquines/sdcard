@@ -21,24 +21,18 @@ const dbStore = createStore<DB>(
   {
     name: "sdcard",
     comment: "",
-    dances: [],
-    tips: [],
+    newSequences: [],
     sequences: [],
+    categories: [],
+    tags: [],
   },
   {
     persist: { enabled: true, name: "db" },
   }
 )
   .extendSelectors((state) => ({
-    /** Get all sequences across all of db. */
-    allSequences: () => [
-      ...state.dances
-        .flatMap((dance) => dance.tips)
-        .flatMap((tip) => tip.sequences),
-      ...state.dances.flatMap((dance) => dance.sequences),
-      ...state.tips.flatMap((tip) => tip.sequences),
-      ...state.sequences,
-    ],
+    /** Get all sequences. */
+    allSequences: () => [...state.newSequences, ...state.sequences],
   }))
   .extendActions((set, get) => ({
     /**
@@ -47,14 +41,12 @@ const dbStore = createStore<DB>(
      */
     importSequences: async (file: File) => {
       const text = await file.text();
-      const existingTimes = new Set(
-        get.allSequences().map((seq) => seq.date)
-      );
+      const existingTimes = new Set(get.allSequences().map((seq) => seq.date));
       // TODO: we might eventually want to make this async
       const newSequences = parseFile(text).filter(
         (seq) => !existingTimes.has(seq.date)
       );
-      set.sequences([...get.sequences(), ...newSequences]);
+      set.newSequences([...get.newSequences(), ...newSequences]);
       return newSequences.length;
     },
   }));

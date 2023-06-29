@@ -1,7 +1,4 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
   Flex,
   FormControl,
@@ -21,7 +18,6 @@ import {
 } from "@chakra-ui/react";
 import { FormEventHandler, useRef, useState } from "react";
 import { actions } from "../lib/store";
-import { useParams } from "react-router";
 import { Link as RouterLink } from "react-router-dom";
 
 function ImportModal() {
@@ -97,25 +93,6 @@ function ImportModal() {
 }
 
 export default function Header() {
-  const { danceId, tipId, seqId } = useParams();
-
-  // TODO: names
-  const links = [
-    danceId && ["Dance", `/dance/${danceId}`],
-    danceId && tipId && ["Tip", `/dance/${danceId}/tip/${tipId}`],
-    danceId &&
-      tipId &&
-      seqId && ["Sequence", `/dance/${danceId}/tip/${tipId}/sequence/${seqId}`],
-    danceId &&
-      !tipId &&
-      seqId && ["Sequence", `/dance/${danceId}/tipsequence/${seqId}`],
-    !danceId && tipId && ["Tip", `/tip/${tipId}`],
-    !danceId &&
-      tipId &&
-      seqId && ["Sequence", `/tip/${tipId}/sequence/${seqId}`],
-    !danceId && !tipId && seqId && ["Sequence", `/sequence/${seqId}`],
-  ].filter((c): c is [string, string] => !!c);
-
   return (
     <>
       <Flex as="header" align="center" w="100%" maxW="8xl" shadow="sm">
@@ -124,26 +101,6 @@ export default function Header() {
             sdcard
           </Link>
         </Heading>
-        <Breadcrumb flex="1" m="3">
-          <BreadcrumbItem>
-            <BreadcrumbLink as={RouterLink} to={`/`}>
-              DB
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          {links.map(([name, to], i) => {
-            const isCurrentPage = i === links.length - 1;
-            return (
-              <BreadcrumbItem key={to} isCurrentPage={isCurrentPage}>
-                <BreadcrumbLink
-                  as={isCurrentPage ? undefined : RouterLink}
-                  to={to}
-                >
-                  {name}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-            );
-          })}
-        </Breadcrumb>
         <ImportModal />
       </Flex>
     </>
