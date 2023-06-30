@@ -11,22 +11,23 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  HStack,
   Radio,
   RadioGroup,
   useDisclosure,
 } from "@chakra-ui/react";
 import { AgGridReact } from "ag-grid-react";
-import { RefObject, useMemo, useRef, useState } from "react";
+import { RefObject, useRef, useState } from "react";
 import { Sequence } from "../lib/types";
 import { actions, useTracked } from "../lib/store";
 import { CategoryOption, Metadata } from "../lib/metadata";
 import { produce } from "immer";
-import { Select } from "chakra-react-select";
+import TagSelect, { TagOption } from "./TagSelect";
+import { ActionMeta } from "chakra-react-select";
 
 function EditSeqs({ seqs }: { seqs: Sequence[] }) {
   const [seqMeta, setSeqMeta] = useState(Metadata.intersect(seqs));
   const categories = useTracked().db.categories();
-  const tags = useTracked().db.tags();
 
   const editBoth = (edit: (meta: Metadata) => void) => {
     setSeqMeta(produce((meta) => edit(meta)));
@@ -38,14 +39,34 @@ function EditSeqs({ seqs }: { seqs: Sequence[] }) {
     );
   };
 
-  const tagOptions = useMemo(
-    () =>
-      Array.from(tags.values()).map(({ tag, comment }) => ({
-        value: tag,
-        label: `${tag}${comment ? ` (${comment})` : ""}`,
-      })),
-    [tags]
-  );
+  const onChangeTags = (action: ActionMeta<TagOption>) => {
+    switch (action.action) {
+      case "select-option": {
+        return editBoth((meta) => {
+          if (action.option) {
+            Metadata.addTag(meta, action.option.value);
+          }
+        });
+      }
+      case "pop-value":
+      case "remove-value": {
+        return editBoth((meta) => {
+          if (action.removedValue) {
+            Metadata.removeTag(meta, action.removedValue.value);
+          }
+        });
+      }
+      case "clear": {
+        return editBoth((meta) => {
+          Metadata.edit(
+            meta,
+            { tags: new Set(action.removedValues.map(({ value }) => value)) },
+            false
+          );
+        });
+      }
+    }
+  };
 
   return (
     <>
@@ -58,66 +79,29 @@ function EditSeqs({ seqs }: { seqs: Sequence[] }) {
               editBoth((meta) => Metadata.addOption(meta, category, option))
             }
           >
-            {options.map((option) => (
-              <Radio key={option} value={option}>
-                {option}
-              </Radio>
-            ))}
+            <HStack>
+              {options.map((option) => (
+                <Radio key={option} value={option}>
+                  {option}
+                </Radio>
+              ))}
+              <Button
+                onClick={() =>
+                  editBoth((meta) => Metadata.removeOption(meta, category))
+                }
+                size="sm"
+                variant="outline"
+              >
+                Clear
+              </Button>
+            </HStack>
           </RadioGroup>
-          <Button
-            onClick={() =>
-              editBoth((meta) => Metadata.removeOption(meta, category))
-            }
-          >
-            clear
-          </Button>
           <FormHelperText>{comment}</FormHelperText>
         </FormControl>
       ))}
       <FormControl>
         <FormLabel>Tags</FormLabel>
-        <Select
-          closeMenuOnSelect={false}
-          isMulti={true}
-          options={tagOptions}
-          defaultValue={tagOptions.filter(({ value }) =>
-            seqMeta.tags.has(value)
-          )}
-          isOptionSelected={({ value }) => seqMeta.tags.has(value)}
-          onChange={(_, action) => {
-            switch (action.action) {
-              case "select-option": {
-                editBoth((meta) => {
-                  if (action.option) {
-                    Metadata.addTag(meta, action.option.value);
-                  }
-                });
-                break;
-              }
-              case "pop-value":
-              case "remove-value": {
-                editBoth((meta) => {
-                  Metadata.removeTag(meta, action.removedValue.value);
-                });
-                break;
-              }
-              case "clear": {
-                editBoth((meta) => {
-                  Metadata.edit(
-                    meta,
-                    {
-                      tags: new Set(
-                        action.removedValues.map(({ value }) => value)
-                      ),
-                    },
-                    false
-                  );
-                });
-                break;
-              }
-            }
-          }}
-        />
+        <TagSelect initialTags={seqMeta.tags} onChange={onChangeTags} />
       </FormControl>
     </>
   );
@@ -138,7 +122,12 @@ function Edit({ gridRef }: { gridRef: RefObject<AgGridReact> }) {
       <Button ref={btnRef} onClick={onEdit}>
         Edit
       </Button>
-      <Drawer isOpen={isOpen} onClose={onClose} finalFocusRef={btnRef}>
+      <Drawer
+        isOpen={isOpen}
+        onClose={onClose}
+        size="sm"
+        finalFocusRef={btnRef}
+      >
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />

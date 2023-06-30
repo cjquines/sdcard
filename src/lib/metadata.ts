@@ -132,12 +132,12 @@ function intersect(sequences: Sequence[]): Metadata {
       }
     }
     for (const tag of metadata.tags) {
-      if (seq.tags.has(tag)) {
+      if (!seq.tags.has(tag)) {
         tagsToRemove.push(tag);
       }
     }
-    categoriesToRemove.forEach(seq.categories.delete);
-    tagsToRemove.forEach(seq.tags.delete);
+    categoriesToRemove.forEach(category => seq.categories.delete(category));
+    tagsToRemove.forEach(tag => seq.tags.delete(tag));
   }
 
   return metadata;
