@@ -1,3 +1,6 @@
+import { Brand, make as makeBrander } from "ts-brand";
+import { Category, CategoryId, Metadata, Tag, TagId } from "./metadata";
+
 /** A dancer is one of the eight people in the square. */
 export enum Dancer {
   B1 = "1B",
@@ -77,7 +80,7 @@ export const isLevel = (s: string): s is Level => LEVEL_MAP.has(s);
 /** A raw sequence is a group of calls SD exports. */
 type RawSequence = {
   /** ID assigned when we first import the sequence. */
-  id: string;
+  id: Brand<string, "SequenceId">;
   /** Date sequence is exported by SD, as millis since Unix epoch. */
   date: number;
   version: string;
@@ -86,31 +89,8 @@ type RawSequence = {
   calls: Call[];
 };
 
-/**
- * A category is a collection of exclusive options, e.g. difficulty, with
- * options like easy, medium, hard.
- */
-export type Category = {
-  category: string;
-  comment: string;
-  options: string[];
-};
-
-/**
- * A tag is anything that can be assigned to a sequence, e.g. a tag for every
- * sequence called at a certain dance.
- */
-export type Tag = {
-  tag: string;
-  comment: string;
-};
-
-export type Metadata = {
-  categories: {
-    [category: string]: string;
-  };
-  tags: Tag[];
-};
+export type SequenceId = RawSequence["id"];
+export const SequenceId = makeBrander<SequenceId>();
 
 /** A sequence is a sequence tagged with metadata. */
 export type Sequence = RawSequence & Metadata;
@@ -119,7 +99,7 @@ export type Sequence = RawSequence & Metadata;
 export type DB = {
   name: string;
   comment: string;
-  sequences: { [id: string]: Sequence };
-  categories: { [category: string]: Category };
-  tags: { [tag: string]: Tag };
+  sequences: Map<SequenceId, Sequence>;
+  categories: Map<CategoryId, Category>;
+  tags: Map<TagId, Tag>;
 };

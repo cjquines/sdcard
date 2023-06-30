@@ -16,46 +16,47 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { AgGridReact } from "ag-grid-react";
-import { RefObject, useRef, useState } from "react";
+import { RefObject, useMemo, useRef, useState } from "react";
 import { Sequence } from "../lib/types";
 import { actions, useTracked } from "../lib/store";
-import { getCommonMetadata } from "../lib/metadata";
+import { CategoryOption, Metadata } from "../lib/metadata";
 import { produce } from "immer";
+import { Select } from "chakra-react-select";
 
 function EditSeqs({ seqs }: { seqs: Sequence[] }) {
-  const [metadata, setMetadata] = useState(getCommonMetadata(seqs));
+  const [seqMeta, setSeqMeta] = useState(Metadata.intersect(seqs));
   const categories = useTracked().db.categories();
+  const tags = useTracked().db.tags();
 
-  const addOption = (category: string, option: string) => {
-    setMetadata(
-      produce((metadata) => {
-        metadata.categories[category] = option;
+  const editBoth = (edit: (meta: Metadata) => void) => {
+    setSeqMeta(produce((meta) => edit(meta)));
+    actions.db.state((state) =>
+      seqs.forEach((seq) => {
+        const sequence = state.sequences.get(seq.id);
+        if (sequence) edit(sequence);
       })
-    );
-    actions.db.editSequences(
-      seqs,
-      { categories: { [category]: option } },
-      true
     );
   };
 
-  const removeOption = (category: string) => {
-    setMetadata(
-      produce((metadata) => {
-        delete metadata.categories[category];
-      })
-    );
-    actions.db.editSequences(seqs, { categories: { [category]: "" } }, false);
-  };
+  const tagOptions = useMemo(
+    () =>
+      Array.from(tags.values()).map(({ tag, comment }) => ({
+        value: tag,
+        label: `${tag}${comment ? ` (${comment})` : ""}`,
+      })),
+    [tags]
+  );
 
   return (
     <>
-      {Object.values(categories).map(({ category, comment, options }) => (
+      {Array.from(categories.values()).map(({ category, comment, options }) => (
         <FormControl key={category} as="fieldset">
           <FormLabel as="legend">{category}</FormLabel>
           <RadioGroup
-            value={metadata.categories[category]}
-            onChange={(option) => addOption(category, option)}
+            value={seqMeta.categories.get(category)}
+            onChange={(option: CategoryOption) =>
+              editBoth((meta) => Metadata.addOption(meta, category, option))
+            }
           >
             {options.map((option) => (
               <Radio key={option} value={option}>
@@ -63,10 +64,61 @@ function EditSeqs({ seqs }: { seqs: Sequence[] }) {
               </Radio>
             ))}
           </RadioGroup>
-          <Button onClick={() => removeOption(category)}>clear</Button>
+          <Button
+            onClick={() =>
+              editBoth((meta) => Metadata.removeOption(meta, category))
+            }
+          >
+            clear
+          </Button>
           <FormHelperText>{comment}</FormHelperText>
         </FormControl>
       ))}
+      <FormControl>
+        <FormLabel>Tags</FormLabel>
+        <Select
+          closeMenuOnSelect={false}
+          isMulti={true}
+          options={tagOptions}
+          defaultValue={tagOptions.filter(({ value }) =>
+            seqMeta.tags.has(value)
+          )}
+          isOptionSelected={({ value }) => seqMeta.tags.has(value)}
+          onChange={(_, action) => {
+            switch (action.action) {
+              case "select-option": {
+                editBoth((meta) => {
+                  if (action.option) {
+                    Metadata.addTag(meta, action.option.value);
+                  }
+                });
+                break;
+              }
+              case "pop-value":
+              case "remove-value": {
+                editBoth((meta) => {
+                  Metadata.removeTag(meta, action.removedValue.value);
+                });
+                break;
+              }
+              case "clear": {
+                editBoth((meta) => {
+                  Metadata.edit(
+                    meta,
+                    {
+                      tags: new Set(
+                        action.removedValues.map(({ value }) => value)
+                      ),
+                    },
+                    false
+                  );
+                });
+                break;
+              }
+            }
+          }}
+        />
+      </FormControl>
     </>
   );
 }

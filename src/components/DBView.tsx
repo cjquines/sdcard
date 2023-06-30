@@ -8,8 +8,9 @@ import { useNavigate } from "react-router";
 
 import { formatDate } from "../lib/dates";
 import { useTracked } from "../lib/store";
-import { Call, Level, Sequence, Tag } from "../lib/types";
+import { Call, Level, Sequence } from "../lib/types";
 import DBActionRow from "./DBActionRow";
+import { TagId } from "../lib/metadata";
 
 export default function DBView() {
   const gridRef = useRef<AgGridReact>(null);
@@ -42,10 +43,10 @@ export default function DBView() {
     { field: "comment" },
     {
       field: "tags",
-      cellRenderer: ({ value }: ICellRendererParams<Sequence, Tag[]>) => (
+      cellRenderer: ({ value }: ICellRendererParams<Sequence, Set<TagId>>) => (
         <>
-          {value?.map((tag) => (
-            <TagElement key={tag.tag}>{tag.tag}</TagElement>
+          {Array.from(value?.values() ?? []).map((tag) => (
+            <TagElement key={tag}>{tag}</TagElement>
           ))}
         </>
       ),
@@ -104,7 +105,7 @@ export default function DBView() {
         <AgGridReact
           ref={gridRef}
           columnDefs={columnDefs}
-          rowData={Object.values(sequences)}
+          rowData={Array.from(sequences.values())}
           rowSelection={"multiple"}
           suppressRowClickSelection={true}
           suppressMovableColumns={true}

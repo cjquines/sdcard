@@ -7,6 +7,7 @@ import {
   LEVEL_MAP,
   Level,
   Sequence,
+  SequenceId,
 } from "./types";
 import { parseDate } from "./dates";
 
@@ -122,14 +123,14 @@ function parseSequence(seqStr: string): Sequence {
   const level = LEVEL_MAP.get(levelStr) ?? Level.ALL;
 
   return {
-    id: nanoid(),
+    id: SequenceId(nanoid()),
     date: parseDate(dateStr),
     version,
     level,
     comment: parseComment(commentBlock),
     calls: blocks.map(parseBlock),
-    categories: {},
-    tags: [],
+    categories: new Map(),
+    tags: new Set(),
   };
 }
 

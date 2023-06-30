@@ -3,8 +3,10 @@ import {
   createStore as createStoreUnwrapped,
   mapValuesKey,
 } from "@udecode/zustood";
-import { DB, Metadata, Sequence } from "./types";
+import { DB } from "./types";
 import { parseFile } from "./parser";
+import { createEnhancedJSONStorage } from "./storage";
+import { DEFAULT_METADATA } from "./metadata";
 
 const createStore = <T extends object>(
   name: string,
@@ -21,24 +23,15 @@ const dbStore = createStore<DB>(
   {
     name: "sdcard",
     comment: "",
-    sequences: {},
-    // some defaults
-    categories: {
-      difficulty: {
-        category: "difficulty",
-        comment: "",
-        options: ["easy", "medium", "hard"],
-      },
-    },
-    tags: {
-      ["@1"]: {
-        tag: "@1",
-        comment: "called during chamateur night, april 24",
-      },
-    },
+    sequences: new Map(),
+    ...DEFAULT_METADATA,
   },
   {
-    persist: { enabled: true, name: "db" },
+    persist: {
+      enabled: true,
+      name: "db",
+      storage: createEnhancedJSONStorage(() => localStorage),
+    },
   }
 ).extendActions((set, get) => ({
   /**
@@ -58,43 +51,12 @@ const dbStore = createStore<DB>(
 
     set.state((state) => {
       for (const seq of newSequences) {
-        state.sequences[seq.id] = seq;
+        state.sequences.set(seq.id, seq);
       }
     });
 
     return newSequences.length;
   },
-  /**
-   * Edit a bunch of sequences. If add is true, then replace the metadata;
-   * otherwise remove the metadata.
-   */
-  editSequences: (seqs: Sequence[], metadata: Partial<Metadata>, add: boolean) =>
-    set.state((state) => {
-      for (const seq of seqs) {
-        const sequence = state.sequences[seq.id];
-
-        // modify categories
-        for (const [category, option] of Object.entries(metadata.categories ?? {})) {
-          if (add) {
-            sequence.categories[category] = option;
-          } else {
-            delete sequence.categories[category];
-          }
-        }
-
-        // modify tags
-        for (const tag of metadata.tags ?? []) {
-          if (add && !sequence.tags.includes(tag)) {
-            sequence.tags.push(tag);
-          } else {
-            const idx = sequence.tags.findIndex((tag_) => tag_ === tag);
-            if (idx !== -1) {
-              sequence.tags.splice(idx, 1);
-            }
-          }
-        }
-      }
-    }),
 }));
 
 const rootStore = {
