@@ -99,6 +99,7 @@ export type Sequence = RawSequence & Metadata;
 export type DB = {
   name: string;
   comment: string;
+  // note: make sure CategoryId and TagId are unique
   sequences: Map<SequenceId, Sequence>;
   categories: Map<CategoryId, Category>;
   tags: Map<TagId, Tag>;

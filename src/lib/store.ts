@@ -29,7 +29,7 @@ const dbStore = createStore<DB>(
   {
     persist: {
       enabled: true,
-      name: "db",
+      name: "sdcard-db",
       storage: createEnhancedJSONStorage(() => localStorage),
     },
   }

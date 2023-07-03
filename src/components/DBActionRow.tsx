@@ -18,12 +18,13 @@ import {
 } from "@chakra-ui/react";
 import { AgGridReact } from "ag-grid-react";
 import { RefObject, useRef, useState } from "react";
+import { ActionMeta } from "chakra-react-select";
+import { produce } from "immer";
 import { Sequence } from "../lib/types";
 import { actions, useTracked } from "../lib/store";
 import { CategoryOption, Metadata } from "../lib/metadata";
-import { produce } from "immer";
 import TagSelect, { TagOption } from "./TagSelect";
-import { ActionMeta } from "chakra-react-select";
+import DBSearch from "./DBSearch";
 
 function EditSeqs({ seqs }: { seqs: Sequence[] }) {
   const [seqMeta, setSeqMeta] = useState(Metadata.intersect(seqs));
@@ -125,7 +126,7 @@ function Edit({ gridRef }: { gridRef: RefObject<AgGridReact> }) {
       <Drawer
         isOpen={isOpen}
         onClose={onClose}
-        size="sm"
+        size="xs"
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
@@ -152,6 +153,7 @@ export default function DBActionRow({
   return (
     <Box>
       <Edit gridRef={gridRef} />
+      <DBSearch />
     </Box>
   );
 }

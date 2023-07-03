@@ -105,7 +105,7 @@ export default function DBView() {
         <AgGridReact
           ref={gridRef}
           columnDefs={columnDefs}
-          rowData={Array.from(sequences.values())}
+          rowData={Array.from(sequences?.values() ?? [])}
           rowSelection={"multiple"}
           suppressRowClickSelection={true}
           suppressMovableColumns={true}

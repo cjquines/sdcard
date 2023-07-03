@@ -120,8 +120,8 @@ function intersect(sequences: Sequence[]): Metadata {
   }
 
   const [head, ...tail] = sequences;
-  metadata.categories = head.categories;
-  metadata.tags = head.tags;
+  metadata.categories = new Map(head.categories);
+  metadata.tags = new Set(head.tags);
 
   for (const seq of tail) {
     const categoriesToRemove = [];
@@ -136,8 +136,10 @@ function intersect(sequences: Sequence[]): Metadata {
         tagsToRemove.push(tag);
       }
     }
-    categoriesToRemove.forEach(category => seq.categories.delete(category));
-    tagsToRemove.forEach(tag => seq.tags.delete(tag));
+    categoriesToRemove.forEach((category) =>
+      metadata.categories.delete(category)
+    );
+    tagsToRemove.forEach((tag) => metadata.tags.delete(tag));
   }
 
   return metadata;

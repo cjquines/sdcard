@@ -42,7 +42,7 @@ export default function TagSelect({
   }, [tagOptions, initialTags]);
 
   return (
-    <Select
+    <Select<TagOption, true>
       components={customComponents}
       closeMenuOnSelect={false}
       isMulti={true}

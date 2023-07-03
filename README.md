@@ -31,6 +31,7 @@ feat:
     - more notes! other than just the comment! and things you can click like hard or easy or whatever
     - measure how long it takes, how long each call takes
     - when they were used
+    - reassign sequence levels based on highest call
 - call metadata:
     - parse calls...
     - highlight less frequent calls in the level/tip view, use them to name sequences without comments
