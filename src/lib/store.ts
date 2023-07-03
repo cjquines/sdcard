@@ -7,6 +7,7 @@ import { DB } from "./types";
 import { parseFile } from "./parser";
 import { createEnhancedJSONStorage } from "./storage";
 import { DEFAULT_METADATA } from "./metadata";
+import { SearchOption } from "./search";
 
 const createStore = <T extends object>(
   name: string,
@@ -59,8 +60,15 @@ const dbStore = createStore<DB>(
   },
 }));
 
+const searchStore = createStore<{
+  options: SearchOption[];
+}>("search", {
+  options: [],
+});
+
 const rootStore = {
   db: dbStore,
+  search: searchStore,
 };
 
 export const useTracked = () => mapValuesKey("useTracked", rootStore);

@@ -6,88 +6,10 @@ import {
   chakraComponents,
 } from "chakra-react-select";
 import { useCallback, useState } from "react";
-import { useTracked } from "../lib/store";
+import { actions, useTracked } from "../lib/store";
 import { CategoryId } from "../lib/metadata";
 import { LEVEL_MAP } from "../lib/types";
-
-/**
- * There are two kinds of search options: full and partial. Partial ones are
- * incomplete, like "tag:", and we can't search while we have one of them.
- * Full ones are like "tag: asdf".
- */
-export enum OptionType {
-  CATEGORY = "category:",
-  LEVEL = "level:",
-  PARTIAL = "partial:",
-  TAG = "tag:",
-}
-
-const SEARCH_OPTION_MAP = new Map<string, OptionType>(
-  Object.values(OptionType).map((val) => [`${val}`, val] as const)
-);
-
-type PartialSearchOption = {
-  value: {
-    type: OptionType.PARTIAL;
-    negated: boolean;
-    text: OptionType;
-    category?: CategoryId;
-  };
-  label: string;
-};
-
-type FullOptionType = Exclude<OptionType, OptionType.PARTIAL>;
-
-type FullSearchOption =
-  | {
-      value: {
-        type: OptionType.CATEGORY;
-        negated: boolean;
-        text: string;
-        category: CategoryId;
-      };
-      label: string;
-    }
-  | {
-      value: {
-        type: Exclude<FullOptionType, OptionType.CATEGORY>;
-        negated: boolean;
-        text: string;
-      };
-      label: string;
-    };
-
-export type SearchOption = PartialSearchOption | FullSearchOption;
-
-const makeLabel = (value: SearchOption["value"]): string => {
-  const { type, text, negated } = value;
-  const pieces = [];
-
-  if (negated) {
-    pieces.push("-");
-  }
-
-  if (type === OptionType.PARTIAL) {
-    if (text === OptionType.CATEGORY) {
-      pieces.push(`${value.category}:`);
-    } else if (text !== OptionType.PARTIAL) {
-      pieces.push(text);
-    }
-  } else if (type === OptionType.CATEGORY) {
-    pieces.push(`${value.category}:`);
-  } else {
-    pieces.push(type);
-  }
-
-  if (type !== OptionType.PARTIAL && text) {
-    pieces.push(` ${text}`);
-  }
-
-  return pieces.join("");
-};
-
-const isPartial = (option: SearchOption): option is PartialSearchOption =>
-  option.value.type === OptionType.PARTIAL;
+import { OptionType, PartialSearchOption, SearchOption } from "../lib/search";
 
 /** Make a default option like "tag:" or "-tag:". */
 const makeDefaultOption = (
@@ -95,8 +17,12 @@ const makeDefaultOption = (
   negated: boolean,
   category?: CategoryId
 ): SearchOption => {
-  const value = { type: OptionType.PARTIAL, text, negated, category } as const;
-  return { value, label: makeLabel(value) };
+  return SearchOption.make({
+    type: OptionType.PARTIAL,
+    text,
+    negated,
+    category,
+  });
 };
 
 /** Make all default options. */
@@ -108,7 +34,7 @@ const useMakeDefaultOptions = () => {
       const options = [];
 
       // non-category and non-partial each get one
-      for (const type of SEARCH_OPTION_MAP.values()) {
+      for (const type of SearchOption.MAP.values()) {
         if (type !== OptionType.CATEGORY && type !== OptionType.PARTIAL) {
           options.push(makeDefaultOption(type, negated));
         }
@@ -132,13 +58,14 @@ const useMakeDefaultOptions = () => {
 
 const customComponents = {
   MultiValueRemove: (props: MultiValueRemoveProps<SearchOption>) =>
-    isPartial(props.data) ? null : (
+    SearchOption.isPartial(props.data) ? null : (
       <chakraComponents.MultiValueRemove
         {...props}
       ></chakraComponents.MultiValueRemove>
     ),
 };
 
+/** Make a list of options out of a given PartialSearchOption. */
 const useMakeOptions = () => {
   const categories = useTracked().db.categories();
   const tags = useTracked().db.tags();
@@ -155,36 +82,32 @@ const useMakeOptions = () => {
         case OptionType.CATEGORY: {
           if (!category) return [];
           return Array.from(categories.get(category)?.options ?? []).map(
-            (option) => {
-              const value = {
+            (option) =>
+              SearchOption.make({
                 type: OptionType.CATEGORY,
                 text: option,
                 negated,
                 category,
-              } as const;
-              return { value, label: makeLabel(value) };
-            }
+              })
           );
         }
         case OptionType.LEVEL: {
-          return Array.from(LEVEL_MAP.values()).map((level) => {
-            const value = {
+          return Array.from(LEVEL_MAP.values()).map((level) =>
+            SearchOption.make({
               type: OptionType.LEVEL,
               text: level,
               negated,
-            } as const;
-            return { value, label: makeLabel(value) };
-          });
+            })
+          );
         }
         case OptionType.TAG: {
-          return Array.from(tags.keys()).map((tag) => {
-            const value = {
+          return Array.from(tags.keys()).map((tag) =>
+            SearchOption.make({
               type: OptionType.TAG,
               text: tag,
               negated,
-            } as const;
-            return { value, label: makeLabel(value) };
-          });
+            })
+          );
         }
       }
     },
@@ -198,11 +121,12 @@ export default function DBSearch() {
 
   const [input, setInput] = useState("");
   const [options, setOptions] = useState(makeDefaultOptions(false));
-  const [value, setValue] = useState<MultiValue<SearchOption>>([]);
+  const value = useTracked().search.options();
+  const setValue = actions.search.options;
 
   const onInputChange = (input: string) => {
     // if we have a partial, then prepend it to input
-    const partial = value.find(isPartial);
+    const partial = value.find(SearchOption.isPartial);
     const modInput = !partial
       ? input
       : partial.label === "-"
@@ -228,19 +152,19 @@ export default function DBSearch() {
     if (
       action.action === "select-option" &&
       action.option &&
-      isPartial(action.option)
+      SearchOption.isPartial(action.option)
     ) {
       // partial case: generate new options
       // remove any partials (that aren't this one)
       setValue(
         newValue.filter(
-          (option) => option === action.option || !isPartial(option)
+          (option) => option === action.option || SearchOption.isFull(option)
         )
       );
       setOptions(makeOptions(action.option));
     } else {
       // not partial case: generate partial options
-      setValue(newValue.filter((option) => !isPartial(option)));
+      setValue(newValue.filter(SearchOption.isFull));
       setOptions(makeDefaultOptions(false));
     }
   };
