@@ -8,7 +8,7 @@ enableMapSet();
 
 import App from "./App.tsx";
 import DBView from "./components/DBView.tsx";
-import SequenceView from "./components/SequenceView.tsx";
+import SeqView from "./components/SeqView.tsx";
 
 const theme = extendTheme({
   fonts: {
@@ -28,7 +28,7 @@ const router = createHashRouter([
       },
       {
         path: "sequence/:seqId",
-        element: <SequenceView />,
+        element: <SeqView />,
       },
     ],
   },

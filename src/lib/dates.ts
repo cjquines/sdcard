@@ -26,7 +26,7 @@ export function parseDate(date: string): number {
 }
 
 /** fuzzy datetime formatting */
-export function formatDate(dateNumber: number): string {
+export function fuzzyFormatDate(dateNumber: number): string {
   const now = new Date();
   const date = new Date(dateNumber);
 
@@ -44,4 +44,14 @@ export function formatDate(dateNumber: number): string {
   })();
 
   return new Intl.DateTimeFormat(undefined, format).format(date);
+}
+
+export function fullFormatDate(dateNumber: number): string {
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  }).format(new Date(dateNumber));
 }

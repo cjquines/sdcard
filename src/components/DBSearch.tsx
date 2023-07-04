@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/react";
 import {
   ActionMeta,
   MultiValue,
@@ -5,11 +6,12 @@ import {
   Select,
   chakraComponents,
 } from "chakra-react-select";
-import { useCallback, useState } from "react";
+import { RefObject, useCallback, useState } from "react";
 import { actions, useTracked } from "../lib/store";
 import { CategoryId } from "../lib/metadata";
 import { LEVEL_MAP } from "../lib/types";
 import { OptionType, PartialSearchOption, SearchOption } from "../lib/search";
+import { AgGridReact } from "ag-grid-react";
 
 /** Make a default option like "tag:" or "-tag:". */
 const makeDefaultOption = (
@@ -115,7 +117,11 @@ const useMakeOptions = () => {
   );
 };
 
-export default function DBSearch() {
+export default function DBSearch({
+  gridRef,
+}: {
+  gridRef: RefObject<AgGridReact>;
+}) {
   const makeOptions = useMakeOptions();
   const makeDefaultOptions = useMakeDefaultOptions();
 
@@ -167,18 +173,21 @@ export default function DBSearch() {
       setValue(newValue.filter(SearchOption.isFull));
       setOptions(makeDefaultOptions(false));
     }
+    gridRef.current?.api.onFilterChanged();
   };
 
   return (
-    <Select<SearchOption, true>
-      components={customComponents}
-      closeMenuOnSelect={false}
-      isMulti={true}
-      inputValue={input}
-      onInputChange={onInputChange}
-      options={options}
-      onChange={onChange}
-      value={value}
-    />
+    <Box flex={1}>
+      <Select<SearchOption, true>
+        components={customComponents}
+        closeMenuOnSelect={false}
+        isMulti={true}
+        inputValue={input}
+        onInputChange={onInputChange}
+        options={options}
+        onChange={onChange}
+        value={value}
+      />
+    </Box>
   );
 }

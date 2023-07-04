@@ -18,41 +18,35 @@ const MAP = new Map<string, OptionType>(
 );
 
 export type PartialSearchOption = {
+  label: string;
   value: {
     type: OptionType.PARTIAL;
     negated: boolean;
     text: OptionType;
     category?: CategoryId;
   };
-  label: string;
 };
 
-type FullSearchOption =
-  | {
-      value: {
+type FullSearchOption = {
+  label: string;
+  value:
+    | {
         type: OptionType.CATEGORY;
         negated: boolean;
         text: string;
         category: CategoryId;
-      };
-      label: string;
-    }
-  | {
-      value: {
+      }
+    | {
         type: OptionType.TAG;
         negated: boolean;
         text: TagId;
-      };
-      label: string;
-    }
-  | {
-      value: {
+      }
+    | {
         type: OptionType.LEVEL;
         negated: boolean;
         text: Level;
       };
-      label: string;
-    };
+};
 
 /** Something that narrows a search. */
 export type SearchOption = PartialSearchOption | FullSearchOption;
@@ -129,7 +123,7 @@ function pass(option: SearchOption, sequence: Sequence): boolean {
     }
   })();
 
-  return negated ? result : !result;
+  return negated ? !result : result;
 }
 
 export const SearchOption = {

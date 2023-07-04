@@ -37,18 +37,18 @@ export type Metadata = {
 // some default categories/tags:
 
 const DIFFICULTY: Category = {
-  category: CategoryId("difficulty"),
+  category: CategoryId("Difficulty"),
   comment: "",
-  options: ["easy", "medium", "hard"].map(CategoryOption),
+  options: ["Easy", "Medium", "Hard"].map(CategoryOption),
 };
 
 const DANCE_ONE: Tag = {
   tag: TagId("@1"),
-  comment: "called during chamateur night, april 24",
+  comment: "Called during Chamateur Night, April 24",
 };
 
 const WEIRD: Tag = {
-  tag: TagId("weird"),
+  tag: TagId("Weird"),
   comment: "",
 };
 
