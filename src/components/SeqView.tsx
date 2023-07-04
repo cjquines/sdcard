@@ -12,7 +12,9 @@ export default function SeqView() {
   return (
     <Flex w="100%">
       <Flex direction="column" flex="1">
-        {seq.calls.map(call => <p>{call.call}</p>)}
+        {seq.calls.map((call) => (
+          <p>{call.call}</p>
+        ))}
       </Flex>
       <Flex direction="column">
         <SeqInfo seq={seq} />

@@ -57,7 +57,7 @@ function parseFormation(rawFormation: string[]): Formation | undefined {
   );
   if (missing.length > 0) {
     if (missing.length < DANCER_MAP.size) {
-      throw new Error("some dancers can't be found?");
+      console.error("some dancers can't be found?");
     }
     return undefined;
   }
@@ -117,7 +117,7 @@ function parseBlock(block: string[]): Call {
 }
 
 function parseSequence(seqStr: string): Sequence {
-  const [headerStr, ...body] = seqStr.trim().split("\n");
+  const [headerStr, ...body] = seqStr.replace(/\r/g, "").trim().split("\n");
   const [dateStr, version, levelStr] = headerStr.split("     ");
   const [commentBlock, ...blocks] = chunkBlocks(body);
   const level = LEVEL_MAP.get(levelStr) ?? Level.ALL;

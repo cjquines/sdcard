@@ -31,7 +31,7 @@ export default function DBView() {
     {
       field: "date",
       cellRenderer: ({ value }: ICellRendererParams<Sequence, number>) =>
-        value && <DateText date={value} full={false} />,
+        value && <DateText date={value} />,
     },
     { field: "comment" },
     {

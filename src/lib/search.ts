@@ -84,7 +84,7 @@ function makeLabel(value: SearchOption["value"]): string {
     pieces.push(` ${text}`);
   }
 
-  return pieces.join("");
+  return pieces.map((s) => s.toLowerCase()).join("");
 }
 
 /** Silly function to make a search option out of a value. */

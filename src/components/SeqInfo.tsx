@@ -37,7 +37,7 @@ export function LevelTag(props: { level: Level } & TagProps) {
   );
 }
 
-export function DateText(props: { date: number; full: boolean } & TextProps) {
+export function DateText(props: { date: number; full?: boolean } & TextProps) {
   const { date, full } = props;
   return (
     <Text color="gray" display="inline" {...props}>
