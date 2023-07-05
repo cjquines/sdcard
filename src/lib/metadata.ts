@@ -112,8 +112,12 @@ function removeTag(data: Metadata, tag: TagId) {
   edit(data, { tags: new Set([tag]) }, false);
 }
 
+function empty(): Metadata {
+  return { categories: new Map(), tags: new Set() };
+}
+
 function intersect(sequences: Sequence[]): Metadata {
-  const metadata: Metadata = { categories: new Map(), tags: new Set() };
+  const metadata = empty();
 
   if (sequences.length === 0) {
     return metadata;
@@ -151,5 +155,6 @@ export const Metadata = {
   removeOption,
   addTag,
   removeTag,
+  empty,
   intersect,
 };

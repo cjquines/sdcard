@@ -1,3 +1,4 @@
+import { AgGridReact } from "ag-grid-react";
 import {
   Button,
   Drawer,
@@ -10,19 +11,31 @@ import {
   Flex,
   useDisclosure,
 } from "@chakra-ui/react";
-import { AgGridReact } from "ag-grid-react";
+import { produce } from "immer";
 import { RefObject, useRef, useState } from "react";
 import { Sequence } from "../lib/types";
-import SeqsMetadata from "./SeqsMetadata";
+import { EditMetadata } from "./SeqMetadata";
+import { Metadata } from "../lib/metadata";
+import { actions } from "../lib/store";
 
-function Edit({ gridRef }: { gridRef: RefObject<AgGridReact<Sequence>> }) {
+function EditSeqs({ gridRef }: { gridRef: RefObject<AgGridReact<Sequence>> }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [seqs, setSeqs] = useState<Sequence[]>([]);
   const btnRef = useRef<HTMLButtonElement>(null);
+  // we duplicate the state here, because reacting to multiple things is kinda
+  // complicated
+  const [seqs, setSeqs] = useState(new Array<Sequence>());
+  const [seqMeta, setSeqMeta] = useState(Metadata.empty());
 
   const onEdit = () => {
-    setSeqs(gridRef.current?.api.getSelectedRows() ?? []);
+    const newSeqs = gridRef.current?.api.getSelectedRows() ?? [];
+    setSeqs(newSeqs);
+    setSeqMeta(Metadata.intersect(newSeqs));
     onOpen();
+  };
+
+  const editBoth = (edit: (meta: Metadata) => void) => {
+    setSeqMeta(produce((meta) => edit(meta)));
+    seqs.forEach((seq) => actions.db.editSeq(seq.id, edit));
   };
 
   return (
@@ -41,7 +54,7 @@ function Edit({ gridRef }: { gridRef: RefObject<AgGridReact<Sequence>> }) {
           <DrawerCloseButton />
           <DrawerHeader>Edit {seqs.length} sequences</DrawerHeader>
           <DrawerBody>
-            <SeqsMetadata seqs={seqs} editable={true} />
+            <EditMetadata meta={seqMeta} setMeta={editBoth} />
           </DrawerBody>
           <DrawerFooter>
             <Button onClick={onClose}>Return</Button>
@@ -59,7 +72,7 @@ export default function DBActionRow({
 }) {
   return (
     <Flex gap={4}>
-      <Edit gridRef={gridRef} />
+      <EditSeqs gridRef={gridRef} />
     </Flex>
   );
 }

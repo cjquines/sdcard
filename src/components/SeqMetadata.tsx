@@ -9,55 +9,47 @@ import {
   Radio,
   RadioGroup,
   Tag,
+  Text,
 } from "@chakra-ui/react";
-import { produce } from "immer";
-import {  useState } from "react";
-import { Sequence } from "../lib/types";
 import { CategoryOption, Metadata } from "../lib/metadata";
-import { actions, useTracked } from "../lib/store";
+import { useTracked } from "../lib/store";
 import { ActionMeta } from "chakra-react-select";
 import TagSelect, { TagOption } from "./TagSelect";
 
-/** Viewing / editing sequence metadata. */
-export default function SeqsMetadata({
-  seqs,
-  editable,
-}: {
-  seqs: Sequence[];
-  editable: boolean;
-}) {
-  const [seqMeta, setSeqMeta] = useState(Metadata.intersect(seqs));
-  const categories = useTracked().db.categories();
-
-  if (!editable) {
-    return (
-      <Flex direction="column" gap={2}>
-        {Array.from(categories.keys()).map((category) => {
-          const value = seqMeta.categories.get(category);
-          return value ? (
-            <Box key={category}>
-              {category}: {value}
-            </Box>
-          ) : null;
-        })}
-        <Flex gap={1}>
-          {Array.from(seqMeta.tags.values()).map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
-          ))}
-        </Flex>
+export function ViewMetadata({ meta }: { meta: Metadata }) {
+  const { categories, tags } = meta;
+  return (
+    <Flex direction="column" gap={2}>
+      {Array.from(categories.entries()).map(([category, value]) => (
+        <Box key={category}>
+          <Text display="inline" color="gray">
+            {category}:
+          </Text>{" "}
+          {value}
+        </Box>
+      ))}
+      <Flex gap={1}>
+        {Array.from(tags.values()).map((tag) => (
+          <Tag key={tag}>{tag}</Tag>
+        ))}
       </Flex>
-    );
-  }
+    </Flex>
+  );
+}
 
-  const editBoth = (edit: (meta: Metadata) => void) => {
-    setSeqMeta(produce((meta) => edit(meta)));
-    seqs.forEach((seq) => actions.db.editSeq(seq.id, edit));
-  };
+export function EditMetadata({
+  meta,
+  setMeta,
+}: {
+  meta: Metadata;
+  setMeta: (edit: (meta: Metadata) => void) => void;
+}) {
+  const categories = useTracked().db.categories();
 
   const onChangeTags = (action: ActionMeta<TagOption>) => {
     switch (action.action) {
       case "select-option": {
-        return editBoth((meta) => {
+        return setMeta((meta) => {
           if (action.option) {
             Metadata.addTag(meta, action.option.value);
           }
@@ -65,14 +57,14 @@ export default function SeqsMetadata({
       }
       case "pop-value":
       case "remove-value": {
-        return editBoth((meta) => {
+        return setMeta((meta) => {
           if (action.removedValue) {
             Metadata.removeTag(meta, action.removedValue.value);
           }
         });
       }
       case "clear": {
-        return editBoth((meta) => {
+        return setMeta((meta) => {
           Metadata.edit(
             meta,
             { tags: new Set(action.removedValues.map(({ value }) => value)) },
@@ -87,11 +79,12 @@ export default function SeqsMetadata({
     <Flex direction="column">
       {Array.from(categories.values()).map(({ category, comment, options }) => (
         <FormControl key={category} as="fieldset">
-          <FormLabel as="legend">{category}</FormLabel>
+          <FormLabel as="legend">{category}:</FormLabel>
           <RadioGroup
-            value={seqMeta.categories.get(category)}
+            defaultChecked={false}
+            value={meta.categories.get(category) ?? ""}
             onChange={(option: CategoryOption) =>
-              editBoth((meta) => Metadata.addOption(meta, category, option))
+              setMeta((meta) => Metadata.addOption(meta, category, option))
             }
           >
             <HStack wrap="wrap">
@@ -102,7 +95,7 @@ export default function SeqsMetadata({
               ))}
               <Button
                 onClick={() =>
-                  editBoth((meta) => Metadata.removeOption(meta, category))
+                  setMeta((meta) => Metadata.removeOption(meta, category))
                 }
                 size="sm"
                 variant="outline"
@@ -115,8 +108,8 @@ export default function SeqsMetadata({
         </FormControl>
       ))}
       <FormControl>
-        <FormLabel>Tags</FormLabel>
-        <TagSelect initialTags={seqMeta.tags} onChange={onChangeTags} />
+        <FormLabel>Tags:</FormLabel>
+        <TagSelect initialTags={meta.tags} onChange={onChangeTags} />
       </FormControl>
     </Flex>
   );

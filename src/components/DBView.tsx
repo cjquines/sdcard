@@ -1,6 +1,10 @@
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/agGridAlpineFont.css";
-import { ColDef, ICellRendererParams } from "ag-grid-community";
+import {
+  ColDef,
+  ICellRendererParams,
+  ValueGetterParams,
+} from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { Flex, Tag as TagElement, Text } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
@@ -9,7 +13,7 @@ import { useNavigate } from "react-router";
 import { store, subscribe, useTracked } from "../lib/store";
 import { Call, Level, Sequence } from "../lib/types";
 import DBActionRow from "./DBActionRow";
-import { TagId } from "../lib/metadata";
+import { CategoryId, TagId } from "../lib/metadata";
 import { DateText, LevelTag } from "./SeqInfo";
 
 export default function DBView() {
@@ -34,6 +38,11 @@ export default function DBView() {
         value && <DateText date={value} />,
     },
     { field: "comment" },
+    {
+      headerName: "difficulty",
+      valueGetter: ({ data }: ValueGetterParams<Sequence>) =>
+        data?.categories.get(CategoryId("Difficulty")),
+    },
     {
       field: "tags",
       cellRenderer: ({ value }: ICellRendererParams<Sequence, Set<TagId>>) => (

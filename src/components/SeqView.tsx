@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useParams } from "react-router";
 import { useTracked } from "../lib/store";
 import { Call, SequenceId } from "../lib/types";
-import SeqInfo from "./SeqInfo";
+import { EditSeqInfo, ViewSeqInfo } from "./SeqInfo";
 import { Link } from "react-router-dom";
 
 function CallBox(props: { call: Call } & BoxProps) {
@@ -22,7 +22,7 @@ function CallBox(props: { call: Call } & BoxProps) {
 export default function SeqView() {
   const { seqId } = useParams();
   const seq = useTracked().db.getSeq(SequenceId(seqId ?? ""));
-  const [callIdx, ] = useState(0);
+  const [callIdx] = useState(0);
   const next = useTracked().search.next;
 
   if (!seq) return <>Can't find sequence {seqId}</>;
@@ -35,6 +35,10 @@ export default function SeqView() {
 
   return (
     <Flex w="100%" gap={4}>
+      <Flex direction="column" gap={4} w="sm">
+        you are on:
+        <EditSeqInfo seq={seq} />
+      </Flex>
       <Flex direction="column" flex={1} gap={4}>
         <Text fontSize="lg" opacity={0.3}>
           {past.map((call) => call.call).join(" / ")}
@@ -44,14 +48,10 @@ export default function SeqView() {
           <CallBox key={idx} call={call} opacity={callIdx > 0 ? 0.3 : 1} />
         ))}
       </Flex>
-      <Flex direction="column">
-        <SeqInfo seq={seq} editable={true} />
-      </Flex>
-      <Flex direction="column">
+      <Flex direction="column" gap={4}>
+        some sequences that satisfy the above query:
         {nextSeqs.map((seq) => (
-          <Link to={`/sequence/${seq.id}`}>
-            <SeqInfo key={seq.id} seq={seq} editable={false} />
-          </Link>
+          <ViewSeqInfo key={seq.id} seq={seq} />
         ))}
       </Flex>
     </Flex>

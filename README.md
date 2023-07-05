@@ -1,15 +1,23 @@
 feat:
 
-- editing categories and tags
-    - adding comments and such
-- saving queries?
-    - rename things as queries internally
-    - save query, edit query
-- in-sequence:
-    - comments etc
+- fix parser again :( check latest C2 file
+- header
+    - saving queries
+    - switching between saved queries
+    - editing saved queries, deleting saved queries
+- dbview
+    - editing categories and tags
+    - edit visible columns
+        - just remove the goddamn calls column
+    - sorting/resizing columns
+    - show number selected
+    - deleting sequences
+- in-sequence
+    - set current call
 - between sequences:
-    - changing queries?
-    - auto-add a tag when going next
+    - show the next satisfying whatever query
+        - maybe each has their own query box even?
+    - auto-add a tag when going next (that's in the bottom of the sequence editor?)
     - heads/sides changing
 - keyboard shortcuts
 

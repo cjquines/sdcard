@@ -1,4 +1,7 @@
 import {
+  Card,
+  CardBody,
+  CardFooter,
   Divider,
   Editable,
   EditableInput,
@@ -12,8 +15,9 @@ import {
 
 import { Level, Sequence } from "../lib/types";
 import { fullFormatDate, fuzzyFormatDate } from "../lib/dates";
-import SeqsMetadata from "./SeqsMetadata";
 import { actions } from "../lib/store";
+import { EditMetadata, ViewMetadata } from "./SeqMetadata";
+import { Link } from "react-router-dom";
 
 const LEVEL_COLOR = {
   [Level.MS]: "cyan",
@@ -48,28 +52,42 @@ export function DateText(props: { date: number; full?: boolean } & TextProps) {
   );
 }
 
-export default function SeqInfo({
-  seq,
-  editable,
-}: {
-  seq: Sequence;
-  editable: boolean;
-}) {
+/**
+ * A card showing a sequence's info, that can be clicked to navigate to that sequence.
+ */
+export function ViewSeqInfo({ seq }: { seq: Sequence }) {
   const { id, date, level, comment } = seq;
 
-  if (!editable) {
-    return (
-      <Flex direction="column" gap="2">
-        <Flex gap="2">
+  return (
+    <Link to={`/sequence/${id}`}>
+      <Flex
+        boxShadow="base"
+        p={3}
+        direction="column"
+        gap={2}
+        rounded="md"
+        w="sm"
+        _hover={{
+          boxShadow: "md",
+          background: "gray.50",
+        }}
+      >
+        <Flex gap={3}>
           <LevelTag level={level} />
-          <Text color={comment === "" ? "gray.400" : "inherit"}>
-            {comment ?? "(no comment)"}
-          </Text>
+          <DateText date={date} full={false} />
         </Flex>
-        <SeqsMetadata seqs={[seq]} editable={editable} />
+        <Text fontSize="lg" color={comment === "" ? "gray.400" : "inherit"}>
+          {comment ?? "(no comment)"}
+        </Text>
+        <ViewMetadata meta={seq} />
       </Flex>
-    );
-  }
+    </Link>
+  );
+}
+
+/** A view for editing a sequence's info. */
+export function EditSeqInfo({ seq }: { seq: Sequence }) {
+  const { id, date, level, comment } = seq;
 
   return (
     <Flex direction="column" gap="2">
@@ -78,6 +96,7 @@ export default function SeqInfo({
         <DateText date={date} full={true} />
       </Flex>
       <Editable
+        fontSize="lg"
         color={comment === "" ? "gray.400" : "inherit"}
         placeholder="(add comment)"
         value={comment}
@@ -91,7 +110,10 @@ export default function SeqInfo({
         <EditableInput />
       </Editable>
       <Divider />
-      <SeqsMetadata seqs={[seq]} editable={editable} />
+      <EditMetadata
+        meta={seq}
+        setMeta={(edit) => actions.db.editSeq(seq.id, edit)}
+      />
     </Flex>
   );
 }

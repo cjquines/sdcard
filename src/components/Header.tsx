@@ -95,8 +95,8 @@ function ImportModal() {
 
 export default function Header() {
   return (
-    <>
-      <Flex as="header" align="center" w="100%" maxW="8xl" shadow="sm">
+    <Flex as="header" justify="center" w="100%" shadow="sm">
+      <Flex align="center" flex="1" maxW="8xl">
         <Heading as="h1" size="md" mx="8">
           <Link as={RouterLink} to="/">
             sdcard
@@ -105,6 +105,6 @@ export default function Header() {
         <DBSearch />
         <ImportModal />
       </Flex>
-    </>
+    </Flex>
   );
 }
