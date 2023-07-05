@@ -8,6 +8,7 @@ import { parseFile } from "./parser";
 import { createEnhancedJSONStorage } from "./storage";
 import { DEFAULT_METADATA } from "./metadata";
 import { SearchOption } from "./search";
+import { StoreApi } from "zustand";
 
 const createStore = <T extends object>(
   name: string,
@@ -76,20 +77,38 @@ const searchStore = createStore<{
   options: SearchOption[];
 }>("search", {
   options: [],
-}).extendSelectors((state) => ({
-  /** Does this sequence pass all (non-partial) filters? */
-  pass: (seq: Sequence) =>
-    state.options.every(
-      (option) =>
-        SearchOption.isPartial(option) || SearchOption.pass(option, seq)
-    ),
-}));
+})
+  .extendSelectors((state) => ({
+    /** Does this sequence pass all (non-partial) filters? */
+    pass: (seq: Sequence) =>
+      state.options.every(
+        (option) =>
+          SearchOption.isPartial(option) || SearchOption.pass(option, seq)
+      ),
+  }))
+  .extendSelectors((_, get) => ({
+    /** Give n suggestions for the sequence after curSeq. */
+    next: (curSeq: Sequence, n: number) => {
+      const result = [];
+      for (const seq of dbStore.get.sequences().values()) {
+        if (result.length === n) break;
+        if (seq.id === curSeq.id) continue;
+        if (get.pass(seq)) result.push(seq);
+      }
+      return result;
+    },
+  }));
 
 const rootStore = {
   db: dbStore,
   search: searchStore,
 };
 
+// oops bad type :(
+const useStore = (mapValuesKey("useStore", rootStore) as unknown) as {
+  [k in keyof typeof rootStore]: StoreApi<typeof rootStore[k]>;
+};
+export const subscribe = mapValuesKey("subscribe", useStore);
 export const useTracked = () => mapValuesKey("useTracked", rootStore);
 export const store = mapValuesKey("get", rootStore);
 export const actions = mapValuesKey("set", rootStore);

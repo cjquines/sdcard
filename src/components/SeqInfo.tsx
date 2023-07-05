@@ -48,8 +48,28 @@ export function DateText(props: { date: number; full?: boolean } & TextProps) {
   );
 }
 
-export default function SeqInfo({ seq }: { seq: Sequence }) {
+export default function SeqInfo({
+  seq,
+  editable,
+}: {
+  seq: Sequence;
+  editable: boolean;
+}) {
   const { id, date, level, comment } = seq;
+
+  if (!editable) {
+    return (
+      <Flex direction="column" gap="2">
+        <Flex gap="2">
+          <LevelTag level={level} />
+          <Text color={comment === "" ? "gray.400" : "inherit"}>
+            {comment ?? "(no comment)"}
+          </Text>
+        </Flex>
+        <SeqsMetadata seqs={[seq]} editable={editable} />
+      </Flex>
+    );
+  }
 
   return (
     <Flex direction="column" gap="2">
@@ -71,7 +91,7 @@ export default function SeqInfo({ seq }: { seq: Sequence }) {
         <EditableInput />
       </Editable>
       <Divider />
-      <SeqsMetadata seqs={[seq]} />
+      <SeqsMetadata seqs={[seq]} editable={editable} />
     </Flex>
   );
 }

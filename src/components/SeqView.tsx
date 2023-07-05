@@ -1,23 +1,58 @@
-import { Flex } from "@chakra-ui/react";
+import { Box, BoxProps, Flex, Text } from "@chakra-ui/react";
+import { useState } from "react";
 import { useParams } from "react-router";
 import { useTracked } from "../lib/store";
-import { SequenceId } from "../lib/types";
+import { Call, SequenceId } from "../lib/types";
 import SeqInfo from "./SeqInfo";
+import { Link } from "react-router-dom";
+
+function CallBox(props: { call: Call } & BoxProps) {
+  const { call, comment, warnings } = props.call;
+  return (
+    <Box {...props}>
+      <Text color="orange.500" fontSize="xl">
+        {comment}
+      </Text>
+      <Text fontSize="xl">{call}</Text>
+      <Text ml={8}>{warnings}</Text>
+    </Box>
+  );
+}
 
 export default function SeqView() {
   const { seqId } = useParams();
   const seq = useTracked().db.getSeq(SequenceId(seqId ?? ""));
+  const [callIdx, ] = useState(0);
+  const next = useTracked().search.next;
+
   if (!seq) return <>Can't find sequence {seqId}</>;
 
+  const past = seq.calls.slice(0, callIdx);
+  const present = seq.calls[callIdx];
+  const future = seq.calls.slice(callIdx + 1);
+
+  const nextSeqs = next(seq, 3);
+
   return (
-    <Flex w="100%">
-      <Flex direction="column" flex="1">
-        {seq.calls.map((call) => (
-          <p>{call.call}</p>
+    <Flex w="100%" gap={4}>
+      <Flex direction="column" flex={1} gap={4}>
+        <Text fontSize="lg" opacity={0.3}>
+          {past.map((call) => call.call).join(" / ")}
+        </Text>
+        <CallBox call={present} />
+        {future.map((call, idx) => (
+          <CallBox key={idx} call={call} opacity={callIdx > 0 ? 0.3 : 1} />
         ))}
       </Flex>
       <Flex direction="column">
-        <SeqInfo seq={seq} />
+        <SeqInfo seq={seq} editable={true} />
+      </Flex>
+      <Flex direction="column">
+        {nextSeqs.map((seq) => (
+          <Link to={`/sequence/${seq.id}`}>
+            <SeqInfo key={seq.id} seq={seq} editable={false} />
+          </Link>
+        ))}
       </Flex>
     </Flex>
   );

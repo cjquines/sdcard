@@ -19,6 +19,7 @@ import {
 import { FormEventHandler, useRef, useState } from "react";
 import { actions } from "../lib/store";
 import { Link as RouterLink } from "react-router-dom";
+import DBSearch from "./DBSearch";
 
 function ImportModal() {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -101,6 +102,7 @@ export default function Header() {
             sdcard
           </Link>
         </Heading>
+        <DBSearch />
         <ImportModal />
       </Flex>
     </>

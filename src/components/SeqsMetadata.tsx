@@ -1,14 +1,17 @@
 import {
+  Box,
   Button,
+  Flex,
   FormControl,
   FormHelperText,
   FormLabel,
   HStack,
   Radio,
   RadioGroup,
+  Tag,
 } from "@chakra-ui/react";
 import { produce } from "immer";
-import { useState } from "react";
+import {  useState } from "react";
 import { Sequence } from "../lib/types";
 import { CategoryOption, Metadata } from "../lib/metadata";
 import { actions, useTracked } from "../lib/store";
@@ -16,9 +19,35 @@ import { ActionMeta } from "chakra-react-select";
 import TagSelect, { TagOption } from "./TagSelect";
 
 /** Viewing / editing sequence metadata. */
-export default function SeqsMetadata({ seqs }: { seqs: Sequence[] }) {
+export default function SeqsMetadata({
+  seqs,
+  editable,
+}: {
+  seqs: Sequence[];
+  editable: boolean;
+}) {
   const [seqMeta, setSeqMeta] = useState(Metadata.intersect(seqs));
   const categories = useTracked().db.categories();
+
+  if (!editable) {
+    return (
+      <Flex direction="column" gap={2}>
+        {Array.from(categories.keys()).map((category) => {
+          const value = seqMeta.categories.get(category);
+          return value ? (
+            <Box key={category}>
+              {category}: {value}
+            </Box>
+          ) : null;
+        })}
+        <Flex gap={1}>
+          {Array.from(seqMeta.tags.values()).map((tag) => (
+            <Tag key={tag}>{tag}</Tag>
+          ))}
+        </Flex>
+      </Flex>
+    );
+  }
 
   const editBoth = (edit: (meta: Metadata) => void) => {
     setSeqMeta(produce((meta) => edit(meta)));
@@ -55,7 +84,7 @@ export default function SeqsMetadata({ seqs }: { seqs: Sequence[] }) {
   };
 
   return (
-    <>
+    <Flex direction="column">
       {Array.from(categories.values()).map(({ category, comment, options }) => (
         <FormControl key={category} as="fieldset">
           <FormLabel as="legend">{category}</FormLabel>
@@ -89,6 +118,6 @@ export default function SeqsMetadata({ seqs }: { seqs: Sequence[] }) {
         <FormLabel>Tags</FormLabel>
         <TagSelect initialTags={seqMeta.tags} onChange={onChangeTags} />
       </FormControl>
-    </>
+    </Flex>
   );
 }

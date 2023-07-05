@@ -6,8 +6,6 @@ feat:
     - rename things as queries internally
     - save query, edit query
 - in-sequence:
-    - format calls
-    - larger font
     - comments etc
 - between sequences:
     - changing queries?

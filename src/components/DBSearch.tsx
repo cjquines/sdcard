@@ -6,12 +6,11 @@ import {
   Select,
   chakraComponents,
 } from "chakra-react-select";
-import { RefObject, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { actions, useTracked } from "../lib/store";
 import { CategoryId } from "../lib/metadata";
 import { LEVEL_MAP } from "../lib/types";
 import { OptionType, PartialSearchOption, SearchOption } from "../lib/search";
-import { AgGridReact } from "ag-grid-react";
 
 /** Make a default option like "tag:" or "-tag:". */
 const makeDefaultOption = (
@@ -117,11 +116,7 @@ const useMakeOptions = () => {
   );
 };
 
-export default function DBSearch({
-  gridRef,
-}: {
-  gridRef: RefObject<AgGridReact>;
-}) {
+export default function DBSearch() {
   const makeOptions = useMakeOptions();
   const makeDefaultOptions = useMakeDefaultOptions();
 
@@ -173,7 +168,6 @@ export default function DBSearch({
       setValue(newValue.filter(SearchOption.isFull));
       setOptions(makeDefaultOptions(false));
     }
-    gridRef.current?.api.onFilterChanged();
   };
 
   return (

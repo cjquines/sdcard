@@ -13,7 +13,6 @@ import {
 import { AgGridReact } from "ag-grid-react";
 import { RefObject, useRef, useState } from "react";
 import { Sequence } from "../lib/types";
-import DBSearch from "./DBSearch";
 import SeqsMetadata from "./SeqsMetadata";
 
 function Edit({ gridRef }: { gridRef: RefObject<AgGridReact<Sequence>> }) {
@@ -42,7 +41,7 @@ function Edit({ gridRef }: { gridRef: RefObject<AgGridReact<Sequence>> }) {
           <DrawerCloseButton />
           <DrawerHeader>Edit {seqs.length} sequences</DrawerHeader>
           <DrawerBody>
-            <SeqsMetadata seqs={seqs} />
+            <SeqsMetadata seqs={seqs} editable={true} />
           </DrawerBody>
           <DrawerFooter>
             <Button onClick={onClose}>Return</Button>
@@ -61,7 +60,6 @@ export default function DBActionRow({
   return (
     <Flex gap={4}>
       <Edit gridRef={gridRef} />
-      <DBSearch gridRef={gridRef} />
     </Flex>
   );
 }

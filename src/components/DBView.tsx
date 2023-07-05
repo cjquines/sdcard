@@ -3,10 +3,10 @@ import "ag-grid-community/styles/agGridAlpineFont.css";
 import { ColDef, ICellRendererParams } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { Flex, Tag as TagElement, Text } from "@chakra-ui/react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 
-import { store, useTracked } from "../lib/store";
+import { store, subscribe, useTracked } from "../lib/store";
 import { Call, Level, Sequence } from "../lib/types";
 import DBActionRow from "./DBActionRow";
 import { TagId } from "../lib/metadata";
@@ -56,6 +56,14 @@ export default function DBView() {
       ),
     },
   ];
+
+  useEffect(
+    () =>
+      subscribe.search(() => {
+        gridRef?.current?.api.onFilterChanged();
+      }),
+    []
+  );
 
   return (
     <Flex
