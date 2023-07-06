@@ -6,42 +6,47 @@ import {
   ValueGetterParams,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { Flex, Tag as TagElement, Text } from "@chakra-ui/react";
-import { useEffect, useRef } from "react";
+import { Flex, Tag as TagElement } from "@chakra-ui/react";
+import { useRef } from "react";
 import { useNavigate } from "react-router";
 
-import { store, subscribe, useTracked } from "../lib/store";
-import { Call, Level, Sequence } from "../lib/types";
+import { useTracked } from "../lib/store";
+import { Level, Sequence } from "../lib/types";
 import DBActionRow from "./DBActionRow";
 import { CategoryId, TagId } from "../lib/metadata";
 import { DateText, LevelTag } from "./SeqInfo";
 
 export default function DBView() {
   const gridRef = useRef<AgGridReact<Sequence>>(null);
-  const sequences = useTracked().db.sequences();
+  const sequences = useTracked().search.allPass();
   const navigate = useNavigate();
 
   const columnDefs: ColDef<Sequence>[] = [
     {
       headerCheckboxSelection: true,
       checkboxSelection: true,
+      resizable: false,
       maxWidth: 30,
+      lockPosition: "left",
     },
     {
       field: "level",
       cellRenderer: ({ value }: ICellRendererParams<Sequence, Level>) =>
         value && <LevelTag level={value} />,
+      sortable: true,
     },
     {
       field: "date",
       cellRenderer: ({ value }: ICellRendererParams<Sequence, number>) =>
         value && <DateText date={value} />,
+      sortable: true,
     },
     { field: "comment" },
     {
       headerName: "difficulty",
       valueGetter: ({ data }: ValueGetterParams<Sequence>) =>
         data?.categories.get(CategoryId("Difficulty")),
+      sortable: true,
     },
     {
       field: "tags",
@@ -53,26 +58,7 @@ export default function DBView() {
         </>
       ),
     },
-    {
-      field: "calls",
-      cellRenderer: ({ value }: ICellRendererParams<Sequence, Call[]>) => (
-        <Text color="gray" fontSize="sm">
-          {value
-            ?.map((call) => call.call)
-            .join(" / ")
-            .slice(0, 100)}
-        </Text>
-      ),
-    },
   ];
-
-  useEffect(
-    () =>
-      subscribe.search(() => {
-        gridRef?.current?.api.onFilterChanged();
-      }),
-    []
-  );
 
   return (
     <Flex
@@ -87,11 +73,16 @@ export default function DBView() {
       gap="4"
       sx={{
         "&": {
+          "--ag-cell-horizontal-padding": "0.5em",
           "--ag-icon-font-family": "agGridAlpine",
           "--ag-icon-size": "1em",
         },
         ".ag-center-cols-viewport": {
           overflowX: "clip",
+        },
+        ".ag-header-cell-resize": {
+          background: "gray.200",
+          zIndex: "1",
         },
         ".ag-header-cell-text": {
           color: "gray.600",
@@ -114,17 +105,17 @@ export default function DBView() {
       <AgGridReact<Sequence>
         ref={gridRef}
         columnDefs={columnDefs}
-        rowData={Array.from(sequences?.values() ?? [])}
+        defaultColDef={{ resizable: true }}
+        rowData={sequences}
         rowSelection={"multiple"}
+        suppressDragLeaveHidesColumns={true}
         suppressRowClickSelection={true}
-        suppressMovableColumns={true}
         getRowId={(row) => row.data.id}
+        onColumnMoved={() => {
+          /* TODO console.log(e.api.getColumnDefs()) */
+        }}
         onRowClicked={(row) => navigate(`/sequence/${row.data?.id}`)}
         onGridReady={() => gridRef.current?.columnApi?.autoSizeAllColumns()}
-        isExternalFilterPresent={() => true}
-        doesExternalFilterPass={({ data }) =>
-          data !== undefined && store.search.pass(data)
-        }
         headerHeight={30}
         rowHeight={30}
       />

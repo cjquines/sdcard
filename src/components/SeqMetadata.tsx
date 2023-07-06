@@ -109,7 +109,7 @@ export function EditMetadata({
       ))}
       <FormControl>
         <FormLabel>Tags:</FormLabel>
-        <TagSelect initialTags={meta.tags} onChange={onChangeTags} />
+        <TagSelect initial={meta.tags} multiOnChange={onChangeTags} />
       </FormControl>
     </Flex>
   );

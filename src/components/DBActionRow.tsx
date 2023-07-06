@@ -9,13 +9,6 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Spacer,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -25,8 +18,15 @@ import { Sequence } from "../lib/types";
 import { EditMetadata } from "./SeqMetadata";
 import { Metadata } from "../lib/metadata";
 import { actions } from "../lib/store";
+import EditCategories from "./EditCategories";
+import EditTags from "./EditTags";
+import SimpleModal from "./SimpleModal";
 
-function EditSeqs({ gridRef }: { gridRef: RefObject<AgGridReact<Sequence>> }) {
+function EditSeqsBtn({
+  gridRef,
+}: {
+  gridRef: RefObject<AgGridReact<Sequence>>;
+}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
   // we duplicate the state here, because reacting to multiple things is kinda
@@ -74,54 +74,35 @@ function EditSeqs({ gridRef }: { gridRef: RefObject<AgGridReact<Sequence>> }) {
   );
 }
 
-function DeleteSeqs({
+function DeleteSeqsBtn({
   gridRef,
 }: {
   gridRef: RefObject<AgGridReact<Sequence>>;
 }) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const btnRef = useRef<HTMLButtonElement>(null);
   const [seqs, setSeqs] = useState(new Array<Sequence>());
 
-  const onEdit = () => {
-    const newSeqs = gridRef.current?.api.getSelectedRows() ?? [];
-    setSeqs(newSeqs);
-    onOpen();
-  };
+  const beforeOpen = () =>
+    setSeqs(gridRef.current?.api.getSelectedRows() ?? []);
 
-  const onDelete = () => {
+  const onConfirm = () =>
     actions.db.state((state) => {
       seqs.forEach((seq) => state.sequences.delete(seq.id));
     });
-    onClose();
-  };
 
   return (
-    <>
-      <Button ref={btnRef} onClick={onEdit}>
-        Delete sequences
-      </Button>
-      <Modal isOpen={isOpen} onClose={onClose} finalFocusRef={btnRef}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Delete {seqs.length} sequences</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            Are you sure you want to delete {seqs.length} sequences?
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose} mr={2}>
-              Cancel
-            </Button>
-            <Button onClick={onDelete}>Delete</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+    <SimpleModal
+      open="Delete sequences"
+      beforeOpen={beforeOpen}
+      title={`Delete ${seqs.length} sequences`}
+      confirm="Delete"
+      onConfirm={onConfirm}
+    >
+      Are you sure you want to delete {seqs.length} sequences?
+    </SimpleModal>
   );
 }
 
-function EditCategories() {
+function EditCategoriesBtn() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -153,7 +134,7 @@ function EditCategories() {
   );
 }
 
-function EditTags() {
+function EditTagsBtn() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -192,11 +173,11 @@ export default function DBActionRow({
 }) {
   return (
     <Flex gap={2}>
-      <EditSeqs gridRef={gridRef} />
-      <DeleteSeqs gridRef={gridRef} />
+      <EditSeqsBtn gridRef={gridRef} />
+      <DeleteSeqsBtn gridRef={gridRef} />
       <Spacer />
-      <EditCategories />
-      <EditTags />
+      <EditCategoriesBtn />
+      <EditTagsBtn />
     </Flex>
   );
 }

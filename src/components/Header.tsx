@@ -6,26 +6,41 @@ import {
   Heading,
   Input,
   Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  useDisclosure,
   useMultiStyleConfig,
 } from "@chakra-ui/react";
 import { FormEventHandler, useRef, useState } from "react";
-import { actions } from "../lib/store";
+import { actions, useTracked } from "../lib/store";
 import { Link as RouterLink } from "react-router-dom";
 import DBSearch from "./DBSearch";
+import SimpleModal from "./SimpleModal";
+import TagSelect from "./TagSelect";
+
+function SessionModal() {
+  const autoTag = useTracked().session.autoTag();
+  const ongoing = useTracked().session.ongoing();
+
+  const onStop = actions.session.stop;
+  const onConfirm = actions.session.init;
+
+  return (
+    <SimpleModal
+      open={ongoing ? "View session" : "Start session"}
+      title={ongoing ? "Session info" : "Start session"}
+      confirm={ongoing ? "Stop" : "Start"}
+      onConfirm={ongoing ? onStop : onConfirm}
+    >
+      <FormControl>
+        <FormLabel>Auto-tag:</FormLabel>
+        <TagSelect initial={autoTag} onChange={actions.session.autoTag} />
+      </FormControl>
+    </SimpleModal>
+  );
+}
 
 function ImportModal() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [newSeqs, setNewSeqs] = useState<number>();
   const [importing, setImporting] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const styles = useMultiStyleConfig("Button");
 
   const onSubmit: FormEventHandler = (e) => {
@@ -42,67 +57,57 @@ function ImportModal() {
   };
 
   return (
-    <>
-      <Button m="3" onClick={onOpen}>
-        Import sequences
-      </Button>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Import sequences</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <form onSubmit={onSubmit}>
-              <FormControl>
-                <FormLabel>Choose SD files to import:</FormLabel>
-                <Input
-                  type="file"
-                  border="none"
-                  p="0"
-                  sx={{
-                    "::file-selector-button": {
-                      ...styles,
-                      border: "none",
-                      outline: "none",
-                    },
-                    "::file-selector-button:hover": {
-                      cursor: "pointer",
-                      background: "gray.200",
-                    },
-                  }}
-                  ref={fileInput}
-                  multiple
-                />
-              </FormControl>
-              {importing ? (
-                "Importing..."
-              ) : (
-                <Button mt="4" type="submit">
-                  Import
-                </Button>
-              )}
-            </form>
-            {newSeqs !== undefined ? `${newSeqs} sequences added.` : null}
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose}>Return</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+    <SimpleModal
+      open="Import sequences"
+      title="Import sequences"
+      cancel="Return"
+    >
+      <form onSubmit={onSubmit}>
+        <FormControl>
+          <FormLabel>Choose SD files to import:</FormLabel>
+          <Input
+            type="file"
+            border="none"
+            p="0"
+            sx={{
+              "::file-selector-button": {
+                ...styles,
+                border: "none",
+                outline: "none",
+              },
+              "::file-selector-button:hover": {
+                cursor: "pointer",
+                background: "gray.200",
+              },
+            }}
+            ref={fileInput}
+            multiple
+          />
+        </FormControl>
+        {importing ? (
+          "Importing..."
+        ) : (
+          <Button mt="4" type="submit">
+            Import
+          </Button>
+        )}
+      </form>
+      {newSeqs !== undefined ? `${newSeqs} sequences added.` : null}
+    </SimpleModal>
   );
 }
 
 export default function Header() {
   return (
     <Flex as="header" justify="center" w="100%" shadow="sm">
-      <Flex align="center" flex="1" maxW="8xl">
-        <Heading as="h1" size="md" mx="8">
+      <Flex align="center" flex="1" maxW="8xl" m="3" gap="3">
+        <Heading as="h1" size="md" mx="5">
           <Link as={RouterLink} to="/">
             sdcard
           </Link>
         </Heading>
         <DBSearch />
+        <SessionModal />
         <ImportModal />
       </Flex>
     </Flex>

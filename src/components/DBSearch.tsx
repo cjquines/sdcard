@@ -173,6 +173,12 @@ export default function DBSearch() {
   return (
     <Box flex={1}>
       <Select<SearchOption, true>
+        chakraStyles={{
+          menu: (provided) => ({
+            ...provided,
+            zIndex: "2",
+          }),
+        }}
         components={customComponents}
         closeMenuOnSelect={false}
         isMulti={true}

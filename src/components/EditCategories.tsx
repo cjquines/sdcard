@@ -11,6 +11,7 @@ export default function EditCategories() {
 
   return (
     <Flex direction="column">
+      TODO
       {Array.from(categories.values()).map(({ id, name, comment }) => {
         return (
           <Flex direction="column">

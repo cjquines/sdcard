@@ -20,7 +20,7 @@ function CallBox(props: { call: Call } & BoxProps) {
 
 export default function SeqView() {
   const { seqId } = useParams();
-  const seq = useTracked().db.getSeq(SequenceId(seqId ?? ""));
+  const seq = useTracked().db.sequences().get(SequenceId(seqId ?? ""));
   const [callIdx] = useState(0);
   const next = useTracked().search.next;
 
@@ -35,8 +35,10 @@ export default function SeqView() {
   return (
     <Flex w="100%" gap={4}>
       <Flex direction="column" gap={4} w="sm">
-        you are on:
         <EditSeqInfo seq={seq} />
+        TODO: session info
+        add X tag before moving to the next sequence
+        session notes
       </Flex>
       <Flex direction="column" flex={1} gap={4}>
         <Text fontSize="lg" opacity={0.3}>
@@ -48,7 +50,6 @@ export default function SeqView() {
         ))}
       </Flex>
       <Flex direction="column" gap={4}>
-        some sequences that satisfy the above query:
         {nextSeqs.map((seq) => (
           <ViewSeqInfo key={seq.id} seq={seq} />
         ))}

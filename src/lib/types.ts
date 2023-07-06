@@ -99,8 +99,15 @@ export type Sequence = RawSequence & Metadata;
 export type DB = {
   name: string;
   comment: string;
-  // note: make sure CategoryId and TagId are unique
   sequences: Map<SequenceId, Sequence>;
   categories: Map<CategoryId, Category>;
   tags: Map<TagId, Tag>;
+};
+
+/** A Session represents session-local state. */
+export type Session = {
+  /** Add this tag to all sequences we view. */
+  autoTag: TagId | null;
+  /** Show the last N sequences of the stack, pull when we take it. */
+  stack: Sequence[];
 };

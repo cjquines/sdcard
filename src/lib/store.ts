@@ -3,12 +3,12 @@ import {
   createStore as createStoreUnwrapped,
   mapValuesKey,
 } from "@udecode/zustood";
-import { DB, Sequence, SequenceId } from "./types";
+import { StoreApi } from "zustand";
+import { DB, Sequence, SequenceId, Session } from "./types";
 import { parseFile } from "./parser";
 import { createEnhancedJSONStorage } from "./storage";
-import { Category, CategoryId, DEFAULT_METADATA } from "./metadata";
+import { Category, CategoryId, DEFAULT_METADATA, Tag, TagId } from "./metadata";
 import { SearchOption } from "./search";
-import { StoreApi } from "zustand";
 
 const createStore = <T extends object>(
   name: string,
@@ -35,50 +35,52 @@ const dbStore = createStore<DB>(
       storage: createEnhancedJSONStorage(() => localStorage),
     },
   }
-)
-  .extendSelectors((state) => ({
-    /** Get sequence with given ID. */
-    getSeq: (seqId: SequenceId) => state.sequences.get(seqId),
-  }))
-  .extendActions((set, get) => ({
-    /** Edit a sequence. */
-    editSeq: (seqId: SequenceId, edit: (seq: Sequence) => void) => {
-      set.state((state) => {
-        const sequence = state.sequences.get(seqId);
-        if (sequence) edit(sequence);
-      });
-    },
-    /** Edit a category. */
-    editCategory: (categoryId: CategoryId, edit: (seq: Category) => void) => {
-      set.state((state) => {
-        const category = state.categories.get(categoryId);
-        if (category) edit(category);
-      });
-    },
-    /**
-     * Add a bunch of sequences to current db, removing duplicate times.
-     * Returns number of sequences added.
-     */
-    importSequences: async (file: File) => {
-      const text = await file.text();
-      const existingTimes = new Set(
-        Array.from(get.sequences().values()).map((seq) => seq.date)
-      );
+).extendActions((set, get) => ({
+  /** Edit a sequence. */
+  editSeq: (seqId: SequenceId, edit: (seq: Sequence) => void) => {
+    set.state((state) => {
+      const sequence = state.sequences.get(seqId);
+      if (sequence) edit(sequence);
+    });
+  },
+  /** Edit a category. */
+  editCategory: (categoryId: CategoryId, edit: (cat: Category) => void) => {
+    set.state((state) => {
+      const category = state.categories.get(categoryId);
+      if (category) edit(category);
+    });
+  },
+  /** Edit a category. */
+  editTag: (tagId: TagId, edit: (tag: Tag) => void) => {
+    set.state((state) => {
+      const tag = state.tags.get(tagId);
+      if (tag) edit(tag);
+    });
+  },
+  /**
+   * Add a bunch of sequences to current db, removing duplicate times.
+   * Returns number of sequences added.
+   */
+  importSequences: async (file: File) => {
+    const text = await file.text();
+    const existingTimes = new Set(
+      Array.from(get.sequences().values()).map((seq) => seq.date)
+    );
 
-      // TODO: we might eventually want to make this async
-      const newSequences = parseFile(text).filter(
-        (seq) => !existingTimes.has(seq.date)
-      );
+    // TODO: we might eventually want to make this async
+    const newSequences = parseFile(text).filter(
+      (seq) => !existingTimes.has(seq.date)
+    );
 
-      set.state((state) => {
-        for (const seq of newSequences) {
-          state.sequences.set(seq.id, seq);
-        }
-      });
+    set.state((state) => {
+      for (const seq of newSequences) {
+        state.sequences.set(seq.id, seq);
+      }
+    });
 
-      return newSequences.length;
-    },
-  }));
+    return newSequences.length;
+  },
+}));
 
 const searchStore = createStore<{
   options: SearchOption[];
@@ -94,6 +96,9 @@ const searchStore = createStore<{
       ),
   }))
   .extendSelectors((_, get) => ({
+    /** Get all sequences that pass. */
+    allPass: () =>
+      Array.from(dbStore.get.sequences().values()).filter(get.pass),
     /** Give n suggestions for the sequence after curSeq. */
     next: (curSeq: Sequence, n: number) => {
       const result = [];
@@ -106,9 +111,25 @@ const searchStore = createStore<{
     },
   }));
 
+const sessionStore = createStore<Session>("session", {
+  autoTag: null,
+  stack: [],
+})
+  .extendSelectors((state) => ({
+    /** Is the session ongoing? */
+    ongoing: () => state.stack.length !== 0,
+  }))
+  .extendActions((set) => ({
+    /** Start the session with everything that passes. */
+    init: () => set.stack(searchStore.get.allPass()),
+    /** Stop the session. */
+    stop: () => set.stack([]),
+  }));
+
 const rootStore = {
   db: dbStore,
   search: searchStore,
+  session: sessionStore,
 };
 
 // oops bad type :(
