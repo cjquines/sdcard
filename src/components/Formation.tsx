@@ -17,7 +17,7 @@ function Formation({ formation }: { formation?: Formation }) {
           {facing}
         </div>
       );
-    }
+    },
   );
   return (
     <div

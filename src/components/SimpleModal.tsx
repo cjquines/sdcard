@@ -20,9 +20,10 @@ export default function SimpleModal(
     confirm?: string;
     beforeOpen?: () => void;
     onConfirm?: () => void;
-  } & ButtonProps
+  } & ButtonProps,
 ) {
-  const { open, title, cancel, confirm, beforeOpen, onConfirm, children } = props;
+  const { open, title, cancel, confirm, beforeOpen, onConfirm, children } =
+    props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
 

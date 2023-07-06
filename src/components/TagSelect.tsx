@@ -44,7 +44,7 @@ export default function TagSelect({
 
   const defaultValue = useMemo(() => {
     return tagOptions.filter(({ value }) =>
-      isMulti ? initial.has(value) : initial === value
+      isMulti ? initial.has(value) : initial === value,
     );
   }, [tagOptions, initial, isMulti]);
 

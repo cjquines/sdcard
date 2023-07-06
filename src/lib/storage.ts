@@ -25,7 +25,7 @@ function reviver(_: string, value: any) {
 }
 
 export function createEnhancedJSONStorage<S>(
-  getStorage: () => StateStorage
+  getStorage: () => StateStorage,
 ): PersistStorage<S> | undefined {
   let storage: StateStorage | undefined;
 
@@ -53,7 +53,7 @@ export function createEnhancedJSONStorage<S>(
     setItem: (name, newValue) =>
       (storage as StateStorage).setItem(
         name,
-        JSON.stringify(newValue, replacer)
+        JSON.stringify(newValue, replacer),
       ),
     removeItem: (name) => (storage as StateStorage).removeItem(name),
   };

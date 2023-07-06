@@ -16,7 +16,7 @@ import { OptionType, PartialSearchOption, SearchOption } from "../lib/search";
 const makeDefaultOption = (
   text: OptionType,
   negated: boolean,
-  category?: CategoryId
+  category?: CategoryId,
 ): SearchOption => {
   return SearchOption.make({
     type: OptionType.PARTIAL,
@@ -53,7 +53,7 @@ const useMakeDefaultOptions = () => {
 
       return options;
     },
-    [categories]
+    [categories],
   );
 };
 
@@ -89,7 +89,7 @@ const useMakeOptions = () => {
                 text: option,
                 negated,
                 category,
-              })
+              }),
           );
         }
         case OptionType.LEVEL: {
@@ -98,7 +98,7 @@ const useMakeOptions = () => {
               type: OptionType.LEVEL,
               text: level,
               negated,
-            })
+            }),
           );
         }
         case OptionType.TAG: {
@@ -107,12 +107,12 @@ const useMakeOptions = () => {
               type: OptionType.TAG,
               text: tag,
               negated,
-            })
+            }),
           );
         }
       }
     },
-    [categories, tags, makeDefaultOptions]
+    [categories, tags, makeDefaultOptions],
   );
 };
 
@@ -148,7 +148,7 @@ export default function DBSearch() {
 
   const onChange = (
     newValue: MultiValue<SearchOption>,
-    action: ActionMeta<SearchOption>
+    action: ActionMeta<SearchOption>,
   ) => {
     if (
       action.action === "select-option" &&
@@ -159,8 +159,8 @@ export default function DBSearch() {
       // remove any partials (that aren't this one)
       setValue(
         newValue.filter(
-          (option) => option === action.option || SearchOption.isFull(option)
-        )
+          (option) => option === action.option || SearchOption.isFull(option),
+        ),
       );
       setOptions(makeOptions(action.option));
     } else {

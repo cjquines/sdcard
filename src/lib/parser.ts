@@ -53,7 +53,7 @@ function parseFormation(rawFormation: string[]): Formation | undefined {
 
   // check the existence of each dancer
   const missing = Array.from(DANCER_MAP.values()).filter(
-    (dancer) => !formation[dancer]
+    (dancer) => !formation[dancer],
   );
   if (missing.length > 0) {
     if (missing.length < DANCER_MAP.size) {

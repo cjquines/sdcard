@@ -68,7 +68,7 @@ export function EditMetadata({
           Metadata.edit(
             meta,
             { tags: new Set(action.removedValues.map(({ value }) => value)) },
-            false
+            false,
           );
         });
       }

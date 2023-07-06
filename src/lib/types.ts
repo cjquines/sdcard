@@ -14,7 +14,7 @@ export enum Dancer {
 }
 
 export const DANCER_MAP = new Map<string, Dancer>(
-  Object.values(Dancer).map((val) => [`${val}`, val] as const)
+  Object.values(Dancer).map((val) => [`${val}`, val] as const),
 );
 export const isDancer = (s: string): s is Dancer => DANCER_MAP.has(s);
 
@@ -27,7 +27,7 @@ export enum Facing {
 }
 
 export const FACING_MAP = new Map<string, Facing>(
-  Object.values(Facing).map((val) => [`${val}`, val] as const)
+  Object.values(Facing).map((val) => [`${val}`, val] as const),
 );
 export const isFacing = (s: string): s is Facing => FACING_MAP.has(s);
 
@@ -73,7 +73,7 @@ export enum Level {
 }
 
 export const LEVEL_MAP = new Map<string, Level>(
-  Object.values(Level).map((val) => [`${val}`, val] as const)
+  Object.values(Level).map((val) => [`${val}`, val] as const),
 );
 export const isLevel = (s: string): s is Level => LEVEL_MAP.has(s);
 

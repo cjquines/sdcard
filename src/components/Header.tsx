@@ -59,8 +59,8 @@ function ImportModal() {
     setImporting(true);
     Promise.all(
       Array.from(fileInput.current?.files ?? []).map((file) =>
-        actions.db.importSequences(file)
-      )
+        actions.db.importSequences(file),
+      ),
     ).then((seqs) => {
       setNewSeqs(seqs.reduce((x, y) => x + y, 0));
       setImporting(false);

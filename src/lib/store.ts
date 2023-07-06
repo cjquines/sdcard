@@ -13,7 +13,7 @@ import { SearchOption } from "./search";
 const createStore = <T extends object>(
   name: string,
   initialState: T,
-  options?: CreateStoreOptions<T>
+  options?: CreateStoreOptions<T>,
 ) =>
   createStoreUnwrapped(name)(initialState, {
     devtools: { enabled: true },
@@ -34,7 +34,7 @@ const dbStore = createStore<DB>(
       name: "sdcard-db",
       storage: createEnhancedJSONStorage(() => localStorage),
     },
-  }
+  },
 ).extendActions((set, get) => ({
   /** Edit a sequence. */
   editSeq: (seqId: SequenceId, edit: (seq: Sequence) => void) => {
@@ -64,12 +64,12 @@ const dbStore = createStore<DB>(
   importSequences: async (file: File) => {
     const text = await file.text();
     const existingTimes = new Set(
-      Array.from(get.sequences().values()).map((seq) => seq.date)
+      Array.from(get.sequences().values()).map((seq) => seq.date),
     );
 
     // TODO: we might eventually want to make this async
     const newSequences = parseFile(text).filter(
-      (seq) => !existingTimes.has(seq.date)
+      (seq) => !existingTimes.has(seq.date),
     );
 
     set.state((state) => {
@@ -92,7 +92,7 @@ const searchStore = createStore<{
     pass: (seq: Sequence) =>
       state.options.every(
         (option) =>
-          SearchOption.isPartial(option) || SearchOption.pass(option, seq)
+          SearchOption.isPartial(option) || SearchOption.pass(option, seq),
       ),
   }))
   .extendSelectors((_, get) => ({
@@ -146,8 +146,8 @@ const rootStore = {
 };
 
 // oops bad type :(
-const useStore = (mapValuesKey("useStore", rootStore) as unknown) as {
-  [k in keyof typeof rootStore]: StoreApi<typeof rootStore[k]>;
+const useStore = mapValuesKey("useStore", rootStore) as unknown as {
+  [k in keyof typeof rootStore]: StoreApi<(typeof rootStore)[k]>;
 };
 export const subscribe = mapValuesKey("subscribe", useStore);
 export const useTracked = () => mapValuesKey("useTracked", rootStore);

@@ -74,7 +74,7 @@ export const DEFAULT_METADATA = {
 function edit(
   data: Metadata,
   { categories = new Map(), tags = new Set() }: Partial<Metadata>,
-  add: boolean
+  add: boolean,
 ): void {
   // modify categories
   for (const [category, option] of categories?.entries() ?? []) {
@@ -100,7 +100,7 @@ function edit(
 function addOption(
   data: Metadata,
   category: CategoryId,
-  option: CategoryOption
+  option: CategoryOption,
 ) {
   edit(data, { categories: new Map([[category, option]]) }, true);
 }
@@ -146,7 +146,7 @@ function intersect(sequences: Sequence[]): Metadata {
       }
     }
     categoriesToRemove.forEach((category) =>
-      metadata.categories.delete(category)
+      metadata.categories.delete(category),
     );
     tagsToRemove.forEach((tag) => metadata.tags.delete(tag));
   }

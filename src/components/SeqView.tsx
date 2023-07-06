@@ -37,7 +37,7 @@ export default function SeqView() {
   useHotkeys(
     "down",
     () => setCallIdx(Math.min((seq?.calls.length ?? 1) - 1, callIdx + 1)),
-    { preventDefault: true }
+    { preventDefault: true },
   );
   useHotkeys(
     "left",
@@ -48,7 +48,7 @@ export default function SeqView() {
         navigate(-1);
       }
     },
-    { preventDefault: true }
+    { preventDefault: true },
   );
   useHotkeys(
     "right",
@@ -62,7 +62,7 @@ export default function SeqView() {
         setCallIdx(0);
       }
     },
-    { preventDefault: true }
+    { preventDefault: true },
   );
 
   if (!seq) return <>Can't find sequence {seqId}</>;

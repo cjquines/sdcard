@@ -14,7 +14,7 @@ export enum OptionType {
 }
 
 const MAP = new Map<string, OptionType>(
-  Object.values(OptionType).map((val) => [`${val}`, val] as const)
+  Object.values(OptionType).map((val) => [`${val}`, val] as const),
 );
 
 export type PartialSearchOption = {
