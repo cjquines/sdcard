@@ -23,16 +23,16 @@ const customComponents = {
 };
 
 export default function TagSelect({
-  initial,
+  rawValue,
   onChange,
   multiOnChange,
 }: {
-  initial: null | TagId | Set<TagId>;
+  rawValue: null | TagId | Set<TagId>;
   onChange?: (id: null | TagId) => void;
   multiOnChange?: (action: ActionMeta<TagOption>) => void;
 }) {
   const tags = useTracked().db.tags();
-  const isMulti = initial instanceof Set;
+  const isMulti = rawValue instanceof Set;
 
   const tagOptions = useMemo(() => {
     return Array.from(tags.values()).map(({ id, name, comment }) => ({
@@ -42,11 +42,11 @@ export default function TagSelect({
     }));
   }, [tags]);
 
-  const defaultValue = useMemo(() => {
+  const value = useMemo(() => {
     return tagOptions.filter(({ value }) =>
-      isMulti ? initial.has(value) : initial === value,
+      isMulti ? rawValue.has(value) : rawValue === value,
     );
-  }, [tagOptions, initial, isMulti]);
+  }, [tagOptions, rawValue, isMulti]);
 
   return isMulti ? (
     <Select<TagOption, true>
@@ -54,7 +54,7 @@ export default function TagSelect({
       closeMenuOnSelect={false}
       isMulti={true}
       options={tagOptions}
-      defaultValue={defaultValue}
+      value={value}
       onChange={(_, action) => multiOnChange?.(action)}
     />
   ) : (
@@ -63,7 +63,7 @@ export default function TagSelect({
       isClearable={true}
       isMulti={false}
       options={tagOptions}
-      defaultValue={defaultValue[0]}
+      value={value[0]}
       onChange={(option) => onChange?.(option?.value ?? null)}
     />
   );

@@ -12,9 +12,10 @@ import {
 
 import { Level, Sequence } from "../lib/types";
 import { fullFormatDate, fuzzyFormatDate } from "../lib/dates";
-import { actions } from "../lib/store";
+import { actions, useTracked } from "../lib/store";
 import { EditMetadata, ViewMetadata } from "./SeqMetadata";
 import { Link } from "react-router-dom";
+import { TagId } from "../lib/metadata";
 
 const LEVEL_COLOR = {
   [Level.MS]: "cyan",
@@ -47,6 +48,13 @@ export function DateText(props: { date: number; full?: boolean } & TextProps) {
       </time>
     </Text>
   );
+}
+
+export function TagTag(props: { tagId: TagId } & TagProps) {
+  const { tagId } = props;
+  const { name } = useTracked().db.tags().get(tagId) ?? { name: "" };
+
+  return <TagElement {...props}>{name}</TagElement>;
 }
 
 /**

@@ -9,15 +9,11 @@ feat:
   - edit visible columns
   - sorting columns, persist
   - show number selected
-- in-sequence
-  - set current call
 - between sequences:
   - show the next satisfying whatever query
     - maybe each has their own query box even?
   - auto-add a tag when going next (that's in the bottom of the sequence editor?)
   - heads/sides changing
-- keyboard shortcuts
-  - react-hotkeys-hook
 
 stretch:
 
@@ -32,6 +28,8 @@ stretch:
   - reassign sequence levels based on highest call?
 - sequence metadata:
   - measure how long it takes, how long each call takes
+- keyboard shortcuts
+  - customizable?
 
 prior art:
 

@@ -40,7 +40,7 @@ function SessionModal() {
       <Flex direction="column" gap={2}>
         <FormControl>
           <FormLabel>Auto-tag:</FormLabel>
-          <TagSelect initial={autoTag} onChange={actions.session.autoTag} />
+          <TagSelect rawValue={autoTag} onChange={actions.session.autoTag} />
         </FormControl>
         {stack.length} sequences left
       </Flex>

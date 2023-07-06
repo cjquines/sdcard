@@ -8,13 +8,13 @@ import {
   HStack,
   Radio,
   RadioGroup,
-  Tag,
   Text,
 } from "@chakra-ui/react";
 import { CategoryOption, Metadata } from "../lib/metadata";
 import { useTracked } from "../lib/store";
 import { ActionMeta } from "chakra-react-select";
 import TagSelect, { TagOption } from "./TagSelect";
+import { TagTag } from "./SeqInfo";
 
 export function ViewMetadata({ meta }: { meta: Metadata }) {
   const { categories, tags } = meta;
@@ -30,7 +30,7 @@ export function ViewMetadata({ meta }: { meta: Metadata }) {
       ))}
       <Flex gap={1}>
         {Array.from(tags.values()).map((tag) => (
-          <Tag key={tag}>{tag}</Tag>
+          <TagTag key={tag} tagId={tag} />
         ))}
       </Flex>
     </Flex>
@@ -109,7 +109,7 @@ export function EditMetadata({
       ))}
       <FormControl>
         <FormLabel>Tags:</FormLabel>
-        <TagSelect initial={meta.tags} multiOnChange={onChangeTags} />
+        <TagSelect rawValue={meta.tags} multiOnChange={onChangeTags} />
       </FormControl>
     </Flex>
   );

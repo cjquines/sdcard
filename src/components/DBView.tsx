@@ -6,7 +6,7 @@ import {
   ValueGetterParams,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { Flex, Tag as TagElement } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import { useRef } from "react";
 import { useNavigate } from "react-router";
 
@@ -14,7 +14,7 @@ import { useTracked } from "../lib/store";
 import { Level, Sequence } from "../lib/types";
 import DBActionRow from "./DBActionRow";
 import { CategoryId, TagId } from "../lib/metadata";
-import { DateText, LevelTag } from "./SeqInfo";
+import { DateText, LevelTag, TagTag } from "./SeqInfo";
 
 export default function DBView() {
   const gridRef = useRef<AgGridReact<Sequence>>(null);
@@ -53,7 +53,7 @@ export default function DBView() {
       cellRenderer: ({ value }: ICellRendererParams<Sequence, Set<TagId>>) => (
         <>
           {Array.from(value?.values() ?? []).map((tag) => (
-            <TagElement key={tag}>{tag}</TagElement>
+            <TagTag key={tag} tagId={tag} />
           ))}
         </>
       ),
