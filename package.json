@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
+    "lint": "eslint --cache src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
     "format": "prettier --cache --check --ignore-unknown --log-level=warn --ignore-path=.gitignore --write .",
     "preview": "vite preview",
     "postinstall": "husky install"
