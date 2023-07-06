@@ -5,10 +5,9 @@ feat:
     - switching between saved queries
     - editing saved queries, deleting saved queries
 - dbview
-    - editing categories and tags
+    - editing categories
     - edit visible columns
-        - just remove the goddamn calls column
-    - sorting/resizing columns
+    - sorting columns, persist
     - show number selected
 - in-sequence
     - set current call
@@ -18,6 +17,7 @@ feat:
     - auto-add a tag when going next (that's in the bottom of the sequence editor?)
     - heads/sides changing
 - keyboard shortcuts
+    - react-hotkeys-hook
 
 stretch:
 

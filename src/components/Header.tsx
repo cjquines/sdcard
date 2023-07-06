@@ -10,17 +10,25 @@ import {
 } from "@chakra-ui/react";
 import { FormEventHandler, useRef, useState } from "react";
 import { actions, useTracked } from "../lib/store";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import DBSearch from "./DBSearch";
 import SimpleModal from "./SimpleModal";
 import TagSelect from "./TagSelect";
 
 function SessionModal() {
+  const navigate = useNavigate();
   const autoTag = useTracked().session.autoTag();
   const ongoing = useTracked().session.ongoing();
+  const stack = useTracked().session.stack();
 
   const onStop = actions.session.stop;
-  const onConfirm = actions.session.init;
+  const onConfirm = () => {
+    actions.session.init();
+    const seq = actions.session.pop();
+    if (seq) {
+      navigate(`/sequence/${seq.id}`);
+    }
+  };
 
   return (
     <SimpleModal
@@ -29,10 +37,13 @@ function SessionModal() {
       confirm={ongoing ? "Stop" : "Start"}
       onConfirm={ongoing ? onStop : onConfirm}
     >
-      <FormControl>
-        <FormLabel>Auto-tag:</FormLabel>
-        <TagSelect initial={autoTag} onChange={actions.session.autoTag} />
-      </FormControl>
+      <Flex direction="column" gap={2}>
+        <FormControl>
+          <FormLabel>Auto-tag:</FormLabel>
+          <TagSelect initial={autoTag} onChange={actions.session.autoTag} />
+        </FormControl>
+        {stack.length} sequences left
+      </Flex>
     </SimpleModal>
   );
 }

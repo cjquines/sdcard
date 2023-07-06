@@ -119,9 +119,22 @@ const sessionStore = createStore<Session>("session", {
     /** Is the session ongoing? */
     ongoing: () => state.stack.length !== 0,
   }))
-  .extendActions((set) => ({
+  .extendActions((set, get) => ({
     /** Start the session with everything that passes. */
     init: () => set.stack(searchStore.get.allPass()),
+    /** Add this sequence back to the stack. */
+    unpop: (seq: Sequence) =>
+      set.state((state) => {
+        state.stack.push(seq);
+      }),
+    /** Pop the top sequence from the stack. */
+    pop: () => {
+      const res = get.stack().at(-1);
+      set.state((state) => {
+        state.stack.pop();
+      });
+      return res;
+    },
     /** Stop the session. */
     stop: () => set.stack([]),
   }));

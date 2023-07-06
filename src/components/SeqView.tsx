@@ -1,7 +1,8 @@
 import { Box, BoxProps, Flex, Text } from "@chakra-ui/react";
 import { useState } from "react";
-import { useParams } from "react-router";
-import { useTracked } from "../lib/store";
+import { useHotkeys } from "react-hotkeys-hook";
+import { useNavigate, useParams } from "react-router";
+import { actions, useTracked } from "../lib/store";
 import { Call, SequenceId } from "../lib/types";
 import { EditSeqInfo, ViewSeqInfo } from "./SeqInfo";
 
@@ -20,30 +21,63 @@ function CallBox(props: { call: Call } & BoxProps) {
 
 export default function SeqView() {
   const { seqId } = useParams();
-  const seq = useTracked().db.sequences().get(SequenceId(seqId ?? ""));
-  const [callIdx] = useState(0);
-  const next = useTracked().search.next;
+  const navigate = useNavigate();
+  const seq = useTracked()
+    .db.sequences()
+    .get(SequenceId(seqId ?? ""));
+
+  const [callIdx, setCallIdx] = useState(0);
+  const autoTag = useTracked().session.autoTag();
+  const stack = useTracked().session.stack();
+  const nextSeqs = stack.slice(-3).reverse();
+
+  useHotkeys("up", () => setCallIdx(Math.max(0, callIdx - 1)), {
+    preventDefault: true,
+  });
+  useHotkeys(
+    "down",
+    () => setCallIdx(Math.min((seq?.calls.length ?? 1) - 1, callIdx + 1)),
+    { preventDefault: true }
+  );
+  useHotkeys(
+    "left",
+    () => {
+      if (seq) {
+        actions.session.unpop(seq);
+        setCallIdx(0);
+        navigate(-1);
+      }
+    },
+    { preventDefault: true }
+  );
+  useHotkeys(
+    "right",
+    () => {
+      if (seq && autoTag) {
+        actions.db.editSeq(seq.id, (seq) => seq.tags.add(autoTag));
+      }
+      const next = actions.session.pop();
+      if (next) {
+        navigate(`/sequence/${next.id}`);
+        setCallIdx(0);
+      }
+    },
+    { preventDefault: true }
+  );
 
   if (!seq) return <>Can't find sequence {seqId}</>;
 
-  const past = seq.calls.slice(0, callIdx);
   const present = seq.calls[callIdx];
   const future = seq.calls.slice(callIdx + 1);
-
-  const nextSeqs = next(seq, 3);
 
   return (
     <Flex w="100%" gap={4}>
       <Flex direction="column" gap={4} w="sm">
         <EditSeqInfo seq={seq} />
-        TODO: session info
-        add X tag before moving to the next sequence
-        session notes
+        TODO: session info add X tag before moving to the next sequence session
+        notes
       </Flex>
       <Flex direction="column" flex={1} gap={4}>
-        <Text fontSize="lg" opacity={0.3}>
-          {past.map((call) => call.call).join(" / ")}
-        </Text>
         <CallBox call={present} />
         {future.map((call, idx) => (
           <CallBox key={idx} call={call} opacity={callIdx > 0 ? 0.3 : 1} />
@@ -53,6 +87,7 @@ export default function SeqView() {
         {nextSeqs.map((seq) => (
           <ViewSeqInfo key={seq.id} seq={seq} />
         ))}
+        out of {stack.length}
       </Flex>
     </Flex>
   );

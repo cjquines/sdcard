@@ -50,7 +50,8 @@ export function DateText(props: { date: number; full?: boolean } & TextProps) {
 }
 
 /**
- * A card showing a sequence's info, that can be clicked to navigate to that sequence.
+ * A card showing a sequence's info, that can be clicked to navigate to that
+ * sequence.
  */
 export function ViewSeqInfo({ seq }: { seq: Sequence }) {
   const { id, date, level, comment } = seq;
