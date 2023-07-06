@@ -67,10 +67,20 @@ function parseFormation(rawFormation: string[]): Formation | undefined {
 
 /** a block is a single call plus any info given about the call */
 function parseBlock(block: string[]): Call {
-  const [rawCall, ...rest] = block;
+  const iter = block.values();
+  let line = iter.next();
+
+  // get the lines of the call
+  const callLines = [line.value];
+  line = iter.next();
+  while (!line.done && line.value.startsWith("   ")) {
+    callLines.push(line.value.trim());
+    line = iter.next();
+  }
 
   // pull out a line-starting comment, if it exists
   const [comment, call] = (() => {
+    const rawCall = callLines.join(" ");
     const splits = rawCall.split(" } ");
     if (!rawCall.startsWith("{") || splits.length === 1) {
       return ["", rawCall];
@@ -78,9 +88,6 @@ function parseBlock(block: string[]): Call {
     const [head, ...tail] = splits;
     return [head.slice(2), tail.join(" } ")];
   })();
-
-  const iter = rest.values();
-  let line = iter.next();
 
   // check for warnings
   const warnings = [];

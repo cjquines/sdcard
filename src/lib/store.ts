@@ -55,7 +55,7 @@ const dbStore = createStore<DB>(
     importSequences: async (file: File) => {
       const text = await file.text();
       const existingTimes = new Set(
-        Object.values(get.sequences()).map((seq) => seq.date)
+        Array.from(get.sequences().values()).map((seq) => seq.date)
       );
 
       // TODO: we might eventually want to make this async

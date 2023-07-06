@@ -1,6 +1,5 @@
 feat:
 
-- fix parser again :( check latest C2 file
 - header
     - saving queries
     - switching between saved queries
@@ -11,7 +10,6 @@ feat:
         - just remove the goddamn calls column
     - sorting/resizing columns
     - show number selected
-    - deleting sequences
 - in-sequence
     - set current call
 - between sequences:
@@ -38,4 +36,5 @@ stretch:
 prior art:
 
 - https://www.ceder.net/csds/
+    - https://www.ceder.net/helpdb/viewsingle.php?UniqueId=435
 - see interviews with andy/john

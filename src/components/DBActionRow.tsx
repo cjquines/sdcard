@@ -9,6 +9,13 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
 import { produce } from "immer";
@@ -65,6 +72,53 @@ function EditSeqs({ gridRef }: { gridRef: RefObject<AgGridReact<Sequence>> }) {
   );
 }
 
+function DeleteSeqs({
+  gridRef,
+}: {
+  gridRef: RefObject<AgGridReact<Sequence>>;
+}) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [seqs, setSeqs] = useState(new Array<Sequence>());
+
+  const onEdit = () => {
+    const newSeqs = gridRef.current?.api.getSelectedRows() ?? [];
+    setSeqs(newSeqs);
+    onOpen();
+  };
+
+  const onDelete = () => {
+    actions.db.state((state) => {
+      seqs.forEach((seq) => state.sequences.delete(seq.id));
+    });
+    onClose();
+  };
+
+  return (
+    <>
+      <Button ref={btnRef} onClick={onEdit}>
+        Delete
+      </Button>
+      <Modal isOpen={isOpen} onClose={onClose} finalFocusRef={btnRef}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Delete sequences</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            Are you sure you want to delete {seqs.length} sequences?
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={onClose} mr={2}>
+              Cancel
+            </Button>
+            <Button onClick={onDelete}>Delete</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+}
+
 export default function DBActionRow({
   gridRef,
 }: {
@@ -73,6 +127,7 @@ export default function DBActionRow({
   return (
     <Flex gap={4}>
       <EditSeqs gridRef={gridRef} />
+      <DeleteSeqs gridRef={gridRef} />
     </Flex>
   );
 }
