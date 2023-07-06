@@ -31,9 +31,9 @@ export default function TagSelect({
   const tags = useTracked().db.tags();
 
   const tagOptions = useMemo(() => {
-    return Array.from(tags.values()).map(({ tag, comment }) => ({
-      value: tag,
-      label: `${tag}${comment ? ` (${comment})` : ""}`,
+    return Array.from(tags.values()).map(({ id, name, comment }) => ({
+      value: id,
+      label: `${name}${comment ? ` (${comment})` : ""}`,
     }));
   }, [tags]);
 

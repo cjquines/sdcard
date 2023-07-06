@@ -16,6 +16,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spacer,
   useDisclosure,
 } from "@chakra-ui/react";
 import { produce } from "immer";
@@ -48,12 +49,13 @@ function EditSeqs({ gridRef }: { gridRef: RefObject<AgGridReact<Sequence>> }) {
   return (
     <>
       <Button ref={btnRef} onClick={onEdit}>
-        Edit
+        Edit sequences
       </Button>
       <Drawer
         isOpen={isOpen}
         onClose={onClose}
         size="sm"
+        placement="right"
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
@@ -97,12 +99,12 @@ function DeleteSeqs({
   return (
     <>
       <Button ref={btnRef} onClick={onEdit}>
-        Delete
+        Delete sequences
       </Button>
       <Modal isOpen={isOpen} onClose={onClose} finalFocusRef={btnRef}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Delete sequences</ModalHeader>
+          <ModalHeader>Delete {seqs.length} sequences</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             Are you sure you want to delete {seqs.length} sequences?
@@ -119,15 +121,82 @@ function DeleteSeqs({
   );
 }
 
+function EditCategories() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <>
+      <Button ref={btnRef} onClick={onOpen}>
+        Edit categories
+      </Button>
+      <Drawer
+        isOpen={isOpen}
+        onClose={onClose}
+        size="sm"
+        placement="right"
+        finalFocusRef={btnRef}
+      >
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader>Edit categories</DrawerHeader>
+          <DrawerBody>
+            <EditCategories />
+          </DrawerBody>
+          <DrawerFooter>
+            <Button onClick={onClose}>Return</Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+}
+
+function EditTags() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <>
+      <Button ref={btnRef} onClick={onOpen}>
+        Edit tags
+      </Button>
+      <Drawer
+        isOpen={isOpen}
+        onClose={onClose}
+        size="sm"
+        placement="right"
+        finalFocusRef={btnRef}
+      >
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader>Edit tags</DrawerHeader>
+          <DrawerBody>
+            <EditTags />
+          </DrawerBody>
+          <DrawerFooter>
+            <Button onClick={onClose}>Return</Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+}
+
 export default function DBActionRow({
   gridRef,
 }: {
   gridRef: RefObject<AgGridReact<Sequence>>;
 }) {
   return (
-    <Flex gap={4}>
+    <Flex gap={2}>
       <EditSeqs gridRef={gridRef} />
       <DeleteSeqs gridRef={gridRef} />
+      <Spacer />
+      <EditCategories />
+      <EditTags />
     </Flex>
   );
 }

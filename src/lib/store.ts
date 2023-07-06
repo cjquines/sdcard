@@ -6,7 +6,7 @@ import {
 import { DB, Sequence, SequenceId } from "./types";
 import { parseFile } from "./parser";
 import { createEnhancedJSONStorage } from "./storage";
-import { DEFAULT_METADATA } from "./metadata";
+import { Category, CategoryId, DEFAULT_METADATA } from "./metadata";
 import { SearchOption } from "./search";
 import { StoreApi } from "zustand";
 
@@ -46,6 +46,13 @@ const dbStore = createStore<DB>(
       set.state((state) => {
         const sequence = state.sequences.get(seqId);
         if (sequence) edit(sequence);
+      });
+    },
+    /** Edit a category. */
+    editCategory: (categoryId: CategoryId, edit: (seq: Category) => void) => {
+      set.state((state) => {
+        const category = state.categories.get(categoryId);
+        if (category) edit(category);
       });
     },
     /**

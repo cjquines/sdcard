@@ -1,7 +1,4 @@
 import {
-  Card,
-  CardBody,
-  CardFooter,
   Divider,
   Editable,
   EditableInput,

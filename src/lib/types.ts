@@ -80,7 +80,7 @@ export const isLevel = (s: string): s is Level => LEVEL_MAP.has(s);
 /** A raw sequence is a group of calls SD exports. */
 type RawSequence = {
   /** ID assigned when we first import the sequence. */
-  id: Brand<string, "SequenceId">;
+  readonly id: Brand<string, "SequenceId">;
   /** Date sequence is exported by SD, as millis since Unix epoch. */
   date: number;
   version: string;

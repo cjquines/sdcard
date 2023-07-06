@@ -6,12 +6,13 @@ import { Sequence } from "./types";
  * options like easy, medium, hard.
  */
 export type Category = {
-  category: Brand<string, "CategoryId">;
+  readonly id: Brand<string, "CategoryId">;
+  name: string;
   comment: string;
   options: Brand<string, "CategoryOption">[];
 };
 
-export type CategoryId = Category["category"];
+export type CategoryId = Category["id"];
 export type CategoryOption = Category["options"][number];
 export const CategoryId = makeBrander<CategoryId>();
 export const CategoryOption = makeBrander<CategoryOption>();
@@ -21,11 +22,12 @@ export const CategoryOption = makeBrander<CategoryOption>();
  * sequence called at a certain dance.
  */
 export type Tag = {
-  tag: Brand<string, "TagId">;
+  readonly id: Brand<string, "TagId">;
+  name: string;
   comment: string;
 };
 
-export type TagId = Tag["tag"];
+export type TagId = Tag["id"];
 export const TagId = makeBrander<TagId>();
 
 /** Metadata carries categories (e.g. difficulty) and tags (e.g. "weird"). */
@@ -37,26 +39,29 @@ export type Metadata = {
 // some default categories/tags:
 
 const DIFFICULTY: Category = {
-  category: CategoryId("Difficulty"),
+  id: CategoryId("Difficulty"),
+  name: "Difficulty",
   comment: "",
   options: ["Easy", "Medium", "Hard"].map(CategoryOption),
 };
 
 const DANCE_ONE: Tag = {
-  tag: TagId("@1"),
+  id: TagId("@1"),
+  name: "@1",
   comment: "Called during Chamateur Night, April 24",
 };
 
 const WEIRD: Tag = {
-  tag: TagId("Weird"),
+  id: TagId("Weird"),
+  name: "Weird",
   comment: "",
 };
 
 export const DEFAULT_METADATA = {
-  categories: new Map([[DIFFICULTY.category, DIFFICULTY]]),
+  categories: new Map([[DIFFICULTY.id, DIFFICULTY]]),
   tags: new Map([
-    [DANCE_ONE.tag, DANCE_ONE],
-    [WEIRD.tag, WEIRD],
+    [DANCE_ONE.id, DANCE_ONE],
+    [WEIRD.id, WEIRD],
   ]),
 };
 

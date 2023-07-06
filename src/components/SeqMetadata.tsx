@@ -77,14 +77,14 @@ export function EditMetadata({
 
   return (
     <Flex direction="column">
-      {Array.from(categories.values()).map(({ category, comment, options }) => (
-        <FormControl key={category} as="fieldset">
-          <FormLabel as="legend">{category}:</FormLabel>
+      {Array.from(categories.values()).map(({ id, name, comment, options }) => (
+        <FormControl key={name} as="fieldset">
+          <FormLabel as="legend">{name}:</FormLabel>
           <RadioGroup
             defaultChecked={false}
-            value={meta.categories.get(category) ?? ""}
+            value={meta.categories.get(id) ?? ""}
             onChange={(option: CategoryOption) =>
-              setMeta((meta) => Metadata.addOption(meta, category, option))
+              setMeta((meta) => Metadata.addOption(meta, id, option))
             }
           >
             <HStack wrap="wrap">
@@ -95,7 +95,7 @@ export function EditMetadata({
               ))}
               <Button
                 onClick={() =>
-                  setMeta((meta) => Metadata.removeOption(meta, category))
+                  setMeta((meta) => Metadata.removeOption(meta, id))
                 }
                 size="sm"
                 variant="outline"

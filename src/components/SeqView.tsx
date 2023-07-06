@@ -4,7 +4,6 @@ import { useParams } from "react-router";
 import { useTracked } from "../lib/store";
 import { Call, SequenceId } from "../lib/types";
 import { EditSeqInfo, ViewSeqInfo } from "./SeqInfo";
-import { Link } from "react-router-dom";
 
 function CallBox(props: { call: Call } & BoxProps) {
   const { call, comment, warnings } = props.call;
