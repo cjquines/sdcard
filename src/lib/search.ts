@@ -126,7 +126,7 @@ function optionPass(option: SearchOption, sequence: Sequence): boolean {
   return negated ? !result : result;
 }
 
-export type Query =  SearchOption[];
+export type Query = SearchOption[];
 
 function queryPass(query: Query, sequence: Sequence): boolean {
   return query.every((option) => optionPass(option, sequence));

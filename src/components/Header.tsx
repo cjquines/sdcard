@@ -24,7 +24,7 @@ function SessionModal() {
   const onConfirm = () => {
     const topSeq = actions.session.init();
     if (topSeq) {
-      navigate(`/sequence/${topSeq.id}`);
+      navigate(`/sequence/${topSeq}`);
     }
   };
 

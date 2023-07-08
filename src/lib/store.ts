@@ -97,15 +97,11 @@ const sessionStore = createStore<Session>("session", {
   .extendSelectors((state) => ({
     /** Is the session ongoing? */
     ongoing: () => state.stacks.some((stack) => stack.sequences.length !== 0),
-    /** Get the top sequence of the given stack. */
-    topSeq: (idx = 0) => {
-      const { index, sequences } = state.stacks[idx];
-      return sequences[index];
-    },
   }))
-  .extendActions((set, get) => ({
+  .extendActions((set) => ({
     /** Start the session with everything that passes. */
     init: () => {
+      let res: SequenceId | undefined;
       set.state((state) => {
         // TODO: dedupe, randomize order
         const all = Array.from(dbStore.get.sequences().values());
@@ -115,19 +111,15 @@ const sessionStore = createStore<Session>("session", {
             Query.pass(stack.query, sequence),
           );
         });
+        res = state.stacks[0].sequences[0].id;
+        state.stacks[0].index = 1;
       });
-      return get.topSeq();
+      return res;
     },
-    /** Rotate idx is the current stack. */
-    setCurrentStack: (idx: number) =>
+    /** Rotate until idx is the current stack. */
+    rotate: (idx: number) =>
       set.state((state) => {
-        while (idx > 0) {
-          const stack = state.stacks.shift();
-          if (stack) {
-            state.stacks.push(stack);
-          }
-          idx -= 1;
-        }
+        state.stacks.push(...state.stacks.splice(0, idx));
       }),
     /** Move the index of the current stack back. */
     unpop: () =>
@@ -136,14 +128,24 @@ const sessionStore = createStore<Session>("session", {
       }),
     /** Pop the top sequence from the stack. */
     pop: () => {
-      const res = get.topSeq();
+      let res: SequenceId | undefined;
       set.state((state) => {
-        state.stacks[0].index += 1;
+        const stack = state.stacks[0];
+        res = stack.sequences[stack.index].id;
+        stack.index += 1;
       });
       return res;
     },
     /** Stop the session. */
-    stop: () => set.stacks([]),
+    stop: () =>
+      set.stacks([
+        {
+          name: "default",
+          query: [],
+          index: 0,
+          sequences: [],
+        },
+      ]),
   }));
 
 const rootStore = {

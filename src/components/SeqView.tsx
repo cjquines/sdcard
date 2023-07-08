@@ -12,7 +12,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate, useParams } from "react-router";
 import { actions, useTracked } from "../lib/store";
 import { Call, SequenceId } from "../lib/types";
-import { EditSeqInfo, ViewSeqInfo } from "./SeqInfo";
+import { EditSeqInfo } from "./SeqInfo";
 
 function CallBox(props: { call: Call } & BoxProps) {
   const { call, comment, warnings } = props.call;
@@ -37,9 +37,7 @@ export default function SeqView() {
   const [callIdx, setCallIdx] = useState(0);
   const [willAutoTag, setWillAutoTag] = useState(true);
   const autoTag = useTracked().session.autoTag();
-  const stacks = useTracked().session.stacks();
-  const topSeq = useTracked().session.topSeq;
-  const nextSeqs = stacks.map((_, idx) => topSeq(idx));
+  const ongoing = useTracked().session.ongoing();
 
   useEffect(() => {
     setCallIdx(0);
@@ -72,7 +70,7 @@ export default function SeqView() {
       }
       const next = actions.session.pop();
       if (next) {
-        navigate(`/sequence/${next.id}`);
+        navigate(`/sequence/${next}`);
       }
     },
     { preventDefault: true },
@@ -87,7 +85,7 @@ export default function SeqView() {
     <Flex w="100%" gap={4}>
       <Flex direction="column" gap={4} w="sm">
         <EditSeqInfo seq={seq} />
-        {stacks.length === 0 || !autoTag ? null : (
+        {!ongoing || !autoTag ? null : (
           <FormControl display="flex" gap={2}>
             <Switch
               isChecked={willAutoTag}
@@ -104,9 +102,7 @@ export default function SeqView() {
         ))}
       </Flex>
       <Flex direction="column" gap={4}>
-        {nextSeqs.map((seq) => (
-          <ViewSeqInfo key={seq.id} seq={seq} />
-        ))}
+        {/* TODO stacks */}
       </Flex>
     </Flex>
   );
