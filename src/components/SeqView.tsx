@@ -13,6 +13,7 @@ import { useNavigate, useParams } from "react-router";
 import { actions, useTracked } from "../lib/store";
 import { Call, SequenceId } from "../lib/types";
 import { EditSeqInfo } from "./SeqInfo";
+import StackView from "./StackView";
 
 function CallBox(props: { call: Call } & BoxProps) {
   const { call, comment, warnings } = props.call;
@@ -38,11 +39,16 @@ export default function SeqView() {
   const [willAutoTag, setWillAutoTag] = useState(true);
   const autoTag = useTracked().session.autoTag();
   const ongoing = useTracked().session.ongoing();
+  const stacks = useTracked().session.stacks();
 
   useEffect(() => {
+    if (seq && autoTag && willAutoTag) {
+      actions.db.editSeq(seq.id, (seq) => seq.tags.add(autoTag));
+    }
     setCallIdx(0);
     setWillAutoTag(true);
-  }, [seqId, setWillAutoTag]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seq, setWillAutoTag]);
 
   useHotkeys("up", () => setCallIdx(Math.max(0, callIdx - 1)), {
     preventDefault: true,
@@ -65,9 +71,6 @@ export default function SeqView() {
   useHotkeys(
     "right",
     () => {
-      if (seq && autoTag && willAutoTag) {
-        actions.db.editSeq(seq.id, (seq) => seq.tags.add(autoTag));
-      }
       const next = actions.session.pop();
       if (next) {
         navigate(`/sequence/${next}`);
@@ -102,7 +105,9 @@ export default function SeqView() {
         ))}
       </Flex>
       <Flex direction="column" gap={4}>
-        {/* TODO stacks */}
+        {stacks.map((_, idx) => (
+          <StackView idx={idx} />
+        ))}
       </Flex>
     </Flex>
   );

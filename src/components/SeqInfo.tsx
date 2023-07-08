@@ -4,6 +4,7 @@ import {
   EditableInput,
   EditablePreview,
   Flex,
+  FlexProps,
   Tag as TagElement,
   TagProps,
   Text,
@@ -14,7 +15,6 @@ import { Level, Sequence } from "../lib/types";
 import { fullFormatDate, fuzzyFormatDate } from "../lib/dates";
 import { actions, useTracked } from "../lib/store";
 import { EditMetadata, ViewMetadata } from "./SeqMetadata";
-import { Link } from "react-router-dom";
 import { TagId } from "../lib/metadata";
 
 const LEVEL_COLOR = {
@@ -61,33 +61,33 @@ export function TagTag(props: { tagId: TagId } & TagProps) {
  * A card showing a sequence's info, that can be clicked to navigate to that
  * sequence.
  */
-export function ViewSeqInfo({ seq }: { seq: Sequence }) {
-  const { id, date, level, comment } = seq;
+export function ViewSeqInfo(props: { seq: Sequence } & FlexProps) {
+  const { seq } = props;
+  const { date, level, comment } = seq;
 
   return (
-    <Link to={`/sequence/${id}`}>
-      <Flex
-        boxShadow="base"
-        p={3}
-        direction="column"
-        gap={2}
-        rounded="md"
-        w="sm"
-        _hover={{
-          boxShadow: "md",
-          background: "gray.50",
-        }}
-      >
-        <Flex gap={3}>
-          <LevelTag level={level} />
-          <DateText date={date} full={false} />
-        </Flex>
-        <Text fontSize="lg" color={comment === "" ? "gray.400" : "inherit"}>
-          {comment ?? "(no comment)"}
-        </Text>
-        <ViewMetadata meta={seq} />
+    <Flex
+      boxShadow="base"
+      p={3}
+      direction="column"
+      gap={2}
+      rounded="md"
+      w="sm"
+      _hover={{
+        boxShadow: "md",
+        background: "gray.50",
+      }}
+      {...props}
+    >
+      <Flex gap={3}>
+        <LevelTag level={level} />
+        <DateText date={date} full={false} />
       </Flex>
-    </Link>
+      <Text fontSize="lg" color={comment === "" ? "gray.400" : "inherit"}>
+        {comment ?? "(no comment)"}
+      </Text>
+      <ViewMetadata meta={seq} />
+    </Flex>
   );
 }
 
