@@ -8,7 +8,7 @@ import { DB, Sequence, SequenceId, Session } from "./types";
 import { parseFile } from "./parser";
 import { createEnhancedJSONStorage } from "./storage";
 import { Category, CategoryId, DEFAULT_METADATA, Tag, TagId } from "./metadata";
-import { SearchOption } from "./search";
+import { Query } from "./search";
 
 const createStore = <T extends object>(
   name: string,
@@ -82,66 +82,49 @@ const dbStore = createStore<DB>(
   },
 }));
 
-const searchStore = createStore<{
-  options: SearchOption[];
-}>("search", {
-  options: [],
-})
-  .extendSelectors((state) => ({
-    /** Does this sequence pass all (non-partial) filters? */
-    pass: (seq: Sequence) =>
-      state.options.every(
-        (option) =>
-          SearchOption.isPartial(option) || SearchOption.pass(option, seq),
-      ),
-  }))
-  .extendSelectors((_, get) => ({
-    /** Get all sequences that pass. */
-    allPass: () =>
-      Array.from(dbStore.get.sequences().values()).filter(get.pass),
-    /** Give n suggestions for the sequence after curSeq. */
-    next: (curSeq: Sequence, n: number) => {
-      const result = [];
-      for (const seq of dbStore.get.sequences().values()) {
-        if (result.length === n) break;
-        if (seq.id === curSeq.id) continue;
-        if (get.pass(seq)) result.push(seq);
-      }
-      return result;
-    },
-  }));
-
 const sessionStore = createStore<Session>("session", {
   autoTag: null,
-  stack: [],
+  queries: [
+    {
+      name: "default",
+      options: [],
+    },
+  ],
+  stacks: [],
 })
   .extendSelectors((state) => ({
     /** Is the session ongoing? */
-    ongoing: () => state.stack.length !== 0,
+    ongoing: () => state.stacks.length !== 0,
   }))
   .extendActions((set, get) => ({
     /** Start the session with everything that passes. */
-    init: () => set.stack(searchStore.get.allPass()),
-    /** Add this sequence back to the stack. */
-    unpop: (seq: Sequence) =>
+    init: () =>
       set.state((state) => {
-        state.stack.push(seq);
+        // TODO: dedupe, randomize order
+        const all = Array.from(dbStore.get.sequences().values());
+        state.stacks = state.queries.map((query) =>
+          all.filter((sequence) => Query.pass(query, sequence)),
+        );
+      }),
+    /** Add this sequence back to the stack. */
+    unpop: (idx: number, seq: Sequence) =>
+      set.state((state) => {
+        state.stacks[idx].push(seq);
       }),
     /** Pop the top sequence from the stack. */
-    pop: () => {
-      const res = get.stack().at(-1);
+    pop: (idx: number) => {
+      const res = get.stacks()[idx].at(-1);
       set.state((state) => {
-        state.stack.pop();
+        state.stacks[idx].pop();
       });
       return res;
     },
     /** Stop the session. */
-    stop: () => set.stack([]),
+    stop: () => set.stacks([]),
   }));
 
 const rootStore = {
   db: dbStore,
-  search: searchStore,
   session: sessionStore,
 };
 

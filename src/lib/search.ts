@@ -103,7 +103,7 @@ function make(value: SearchOption["value"]): SearchOption {
 }
 
 /** Does this sequence pass the given search option? */
-function pass(option: SearchOption, sequence: Sequence): boolean {
+function optionPass(option: SearchOption, sequence: Sequence): boolean {
   const { type, text, negated } = option.value;
 
   const result = (() => {
@@ -126,10 +126,23 @@ function pass(option: SearchOption, sequence: Sequence): boolean {
   return negated ? !result : result;
 }
 
+export type Query = {
+  name: string;
+  options: SearchOption[];
+};
+
+function queryPass(query: Query, sequence: Sequence): boolean {
+  return query.options.every((option) => optionPass(option, sequence));
+}
+
 export const SearchOption = {
   MAP,
   isPartial,
   isFull,
   make,
-  pass,
+  pass: optionPass,
+};
+
+export const Query = {
+  pass: queryPass,
 };

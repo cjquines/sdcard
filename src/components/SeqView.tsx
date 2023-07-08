@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate, useParams } from "react-router";
 import { actions, useTracked } from "../lib/store";
-import { Call, SequenceId } from "../lib/types";
+import { Call, Sequence, SequenceId } from "../lib/types";
 import { EditSeqInfo, ViewSeqInfo } from "./SeqInfo";
 
 function CallBox(props: { call: Call } & BoxProps) {
@@ -37,8 +37,10 @@ export default function SeqView() {
   const [callIdx, setCallIdx] = useState(0);
   const [willAutoTag, setWillAutoTag] = useState(true);
   const autoTag = useTracked().session.autoTag();
-  const stack = useTracked().session.stack();
-  const nextSeqs = stack.slice(-3).reverse();
+  const stacks = useTracked().session.stacks();
+  const nextSeqs = stacks
+    .map((stack) => stack.at(-1))
+    .filter((seq): seq is Sequence => seq !== undefined);
 
   useEffect(() => {
     setCallIdx(0);
@@ -57,7 +59,7 @@ export default function SeqView() {
     "left",
     () => {
       if (seq) {
-        actions.session.unpop(seq);
+        actions.session.unpop(0, seq);
         navigate(-1);
       }
     },
@@ -69,7 +71,7 @@ export default function SeqView() {
       if (seq && autoTag && willAutoTag) {
         actions.db.editSeq(seq.id, (seq) => seq.tags.add(autoTag));
       }
-      const next = actions.session.pop();
+      const next = actions.session.pop(0);
       if (next) {
         navigate(`/sequence/${next.id}`);
       }
@@ -86,7 +88,7 @@ export default function SeqView() {
     <Flex w="100%" gap={4}>
       <Flex direction="column" gap={4} w="sm">
         <EditSeqInfo seq={seq} />
-        {stack.length === 0 || !autoTag ? null : (
+        {stacks.length === 0 || !autoTag ? null : (
           <FormControl display="flex" gap={2}>
             <Switch
               isChecked={willAutoTag}
@@ -106,7 +108,6 @@ export default function SeqView() {
         {nextSeqs.map((seq) => (
           <ViewSeqInfo key={seq.id} seq={seq} />
         ))}
-        out of {stack.length}
       </Flex>
     </Flex>
   );

@@ -1,5 +1,6 @@
 import { Brand, make as makeBrander } from "ts-brand";
 import { Category, CategoryId, Metadata, Tag, TagId } from "./metadata";
+import { Query } from "./search";
 
 /** A dancer is one of the eight people in the square. */
 export enum Dancer {
@@ -108,6 +109,8 @@ export type DB = {
 export type Session = {
   /** Add this tag to all sequences we view. */
   autoTag: TagId | null;
-  /** Show the last N sequences of the stack, pull when we take it. */
-  stack: Sequence[];
+  /** Queries for the stacks. */
+  queries: Query[];
+  /** Show the last for each stack, pull when taken. */
+  stacks: Sequence[][];
 };

@@ -116,14 +116,18 @@ const useMakeOptions = () => {
   );
 };
 
-export default function DBSearch() {
+export default function DBSearch({ idx }: { idx: number }) {
   const makeOptions = useMakeOptions();
   const makeDefaultOptions = useMakeDefaultOptions();
 
   const [input, setInput] = useState("");
   const [options, setOptions] = useState(makeDefaultOptions(false));
-  const value = useTracked().search.options();
-  const setValue = actions.search.options;
+
+  const value = useTracked().session.queries()[idx].options;
+  const setValue = (value: SearchOption[]) =>
+    actions.session.state((state) => {
+      state.queries[idx].options = value;
+    });
 
   const onInputChange = (input: string) => {
     // if we have a partial, then prepend it to input

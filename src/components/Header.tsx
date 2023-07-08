@@ -19,12 +19,12 @@ function SessionModal() {
   const navigate = useNavigate();
   const autoTag = useTracked().session.autoTag();
   const ongoing = useTracked().session.ongoing();
-  const stack = useTracked().session.stack();
+  const stack = useTracked().session.stacks();
 
   const onStop = actions.session.stop;
   const onConfirm = () => {
     actions.session.init();
-    const seq = actions.session.pop();
+    const seq = actions.session.pop(0);
     if (seq) {
       navigate(`/sequence/${seq.id}`);
     }
@@ -42,7 +42,11 @@ function SessionModal() {
           <FormLabel>Auto-tag:</FormLabel>
           <TagSelect rawValue={autoTag} onChange={actions.session.autoTag} />
         </FormControl>
-        {stack.length} sequences left
+        <FormControl>
+          <FormLabel>Query 1:</FormLabel>
+          <DBSearch idx={0} />
+        </FormControl>
+        {stack[0]?.length} sequences left
       </Flex>
     </SimpleModal>
   );
@@ -117,7 +121,7 @@ export default function Header() {
             sdcard
           </Link>
         </Heading>
-        <DBSearch />
+        <DBSearch idx={0} />
         <SessionModal />
         <ImportModal />
       </Flex>

@@ -15,11 +15,16 @@ import { Level, Sequence } from "../lib/types";
 import DBActionRow from "./DBActionRow";
 import { CategoryId, TagId } from "../lib/metadata";
 import { DateText, LevelTag, TagTag } from "./SeqInfo";
+import { Query } from "../lib/search";
 
 export default function DBView() {
   const gridRef = useRef<AgGridReact<Sequence>>(null);
-  const sequences = useTracked().search.allPass();
+  const allSequences = useTracked().db.sequences();
+  const query = useTracked().session.queries()[0];
   const navigate = useNavigate();
+  const sequences = Array.from(allSequences.values()).filter((seq) =>
+    Query.pass(query, seq),
+  );
 
   const columnDefs: ColDef<Sequence>[] = [
     {
