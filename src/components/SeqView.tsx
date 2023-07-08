@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate, useParams } from "react-router";
 import { actions, useTracked } from "../lib/store";
-import { Call, Sequence, SequenceId } from "../lib/types";
+import { Call, SequenceId } from "../lib/types";
 import { EditSeqInfo, ViewSeqInfo } from "./SeqInfo";
 
 function CallBox(props: { call: Call } & BoxProps) {
@@ -38,9 +38,8 @@ export default function SeqView() {
   const [willAutoTag, setWillAutoTag] = useState(true);
   const autoTag = useTracked().session.autoTag();
   const stacks = useTracked().session.stacks();
-  const nextSeqs = stacks
-    .map((stack) => stack.at(-1))
-    .filter((seq): seq is Sequence => seq !== undefined);
+  const topSeq = useTracked().session.topSeq;
+  const nextSeqs = stacks.map((_, idx) => topSeq(idx));
 
   useEffect(() => {
     setCallIdx(0);
@@ -59,7 +58,7 @@ export default function SeqView() {
     "left",
     () => {
       if (seq) {
-        actions.session.unpop(0, seq);
+        actions.session.unpop();
         navigate(-1);
       }
     },
@@ -71,7 +70,7 @@ export default function SeqView() {
       if (seq && autoTag && willAutoTag) {
         actions.db.editSeq(seq.id, (seq) => seq.tags.add(autoTag));
       }
-      const next = actions.session.pop(0);
+      const next = actions.session.pop();
       if (next) {
         navigate(`/sequence/${next.id}`);
       }

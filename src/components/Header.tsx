@@ -19,14 +19,12 @@ function SessionModal() {
   const navigate = useNavigate();
   const autoTag = useTracked().session.autoTag();
   const ongoing = useTracked().session.ongoing();
-  const stack = useTracked().session.stacks();
 
   const onStop = actions.session.stop;
   const onConfirm = () => {
-    actions.session.init();
-    const seq = actions.session.pop(0);
-    if (seq) {
-      navigate(`/sequence/${seq.id}`);
+    const topSeq = actions.session.init();
+    if (topSeq) {
+      navigate(`/sequence/${topSeq.id}`);
     }
   };
 
@@ -46,7 +44,6 @@ function SessionModal() {
           <FormLabel>Query 1:</FormLabel>
           <DBSearch idx={0} />
         </FormControl>
-        {stack[0]?.length} sequences left
       </Flex>
     </SimpleModal>
   );
@@ -121,7 +118,7 @@ export default function Header() {
             sdcard
           </Link>
         </Heading>
-        <DBSearch idx={0} />
+        <DBSearch />
         <SessionModal />
         <ImportModal />
       </Flex>

@@ -20,7 +20,7 @@ import { Query } from "../lib/search";
 export default function DBView() {
   const gridRef = useRef<AgGridReact<Sequence>>(null);
   const allSequences = useTracked().db.sequences();
-  const query = useTracked().session.queries()[0];
+  const query = useTracked().session.query();
   const navigate = useNavigate();
   const sequences = Array.from(allSequences.values()).filter((seq) =>
     Query.pass(query, seq),

@@ -105,12 +105,23 @@ export type DB = {
   tags: Map<TagId, Tag>;
 };
 
+/**
+ * A stack of cards is a query of matching sequences, plus an index into a
+ * list of sequences.
+ */
+export type Stack = {
+  name: string;
+  query: Query;
+  index: number;
+  sequences: Sequence[];
+};
+
 /** A Session represents session-local state. */
 export type Session = {
   /** Add this tag to all sequences we view. */
   autoTag: TagId | null;
-  /** Queries for the stacks. */
-  queries: Query[];
-  /** Show the last for each stack, pull when taken. */
-  stacks: Sequence[][];
+  /** The global query. */
+  query: Query;
+  /** The stacks of sequences. */
+  stacks: Stack[];
 };

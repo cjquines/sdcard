@@ -126,13 +126,10 @@ function optionPass(option: SearchOption, sequence: Sequence): boolean {
   return negated ? !result : result;
 }
 
-export type Query = {
-  name: string;
-  options: SearchOption[];
-};
+export type Query =  SearchOption[];
 
 function queryPass(query: Query, sequence: Sequence): boolean {
-  return query.options.every((option) => optionPass(option, sequence));
+  return query.every((option) => optionPass(option, sequence));
 }
 
 export const SearchOption = {

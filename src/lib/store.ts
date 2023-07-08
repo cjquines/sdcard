@@ -84,38 +84,61 @@ const dbStore = createStore<DB>(
 
 const sessionStore = createStore<Session>("session", {
   autoTag: null,
-  queries: [
+  query: [],
+  stacks: [
     {
       name: "default",
-      options: [],
+      query: [],
+      index: 0,
+      sequences: [],
     },
   ],
-  stacks: [],
 })
   .extendSelectors((state) => ({
     /** Is the session ongoing? */
-    ongoing: () => state.stacks.length !== 0,
+    ongoing: () => state.stacks.some((stack) => stack.sequences.length !== 0),
+    /** Get the top sequence of the given stack. */
+    topSeq: (idx = 0) => {
+      const { index, sequences } = state.stacks[idx];
+      return sequences[index];
+    },
   }))
   .extendActions((set, get) => ({
     /** Start the session with everything that passes. */
-    init: () =>
+    init: () => {
       set.state((state) => {
         // TODO: dedupe, randomize order
         const all = Array.from(dbStore.get.sequences().values());
-        state.stacks = state.queries.map((query) =>
-          all.filter((sequence) => Query.pass(query, sequence)),
-        );
-      }),
-    /** Add this sequence back to the stack. */
-    unpop: (idx: number, seq: Sequence) =>
+        state.stacks.forEach((stack) => {
+          stack.index = 0;
+          stack.sequences = all.filter((sequence) =>
+            Query.pass(stack.query, sequence),
+          );
+        });
+      });
+      return get.topSeq();
+    },
+    /** Rotate idx is the current stack. */
+    setCurrentStack: (idx: number) =>
       set.state((state) => {
-        state.stacks[idx].push(seq);
+        while (idx > 0) {
+          const stack = state.stacks.shift();
+          if (stack) {
+            state.stacks.push(stack);
+          }
+          idx -= 1;
+        }
+      }),
+    /** Move the index of the current stack back. */
+    unpop: () =>
+      set.state((state) => {
+        state.stacks[0].index -= 1;
       }),
     /** Pop the top sequence from the stack. */
-    pop: (idx: number) => {
-      const res = get.stacks()[idx].at(-1);
+    pop: () => {
+      const res = get.topSeq();
       set.state((state) => {
-        state.stacks[idx].pop();
+        state.stacks[0].index += 1;
       });
       return res;
     },
