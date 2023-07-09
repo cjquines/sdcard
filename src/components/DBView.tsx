@@ -16,6 +16,7 @@ import DBActionRow from "./DBActionRow";
 import { CategoryId, TagId } from "../lib/metadata";
 import { DateText, LevelTag, TagTag } from "./SeqInfo";
 import { Query } from "../lib/search";
+import { score } from "../lib/session";
 
 export default function DBView() {
   const gridRef = useRef<AgGridReact<Sequence>>(null);
@@ -62,6 +63,12 @@ export default function DBView() {
           ))}
         </>
       ),
+    },
+    {
+      headerName: "score",
+      valueGetter: ({ data }: ValueGetterParams<Sequence>) =>
+        data ? score(data) : "",
+      sortable: true,
     },
   ];
 

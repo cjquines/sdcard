@@ -8,7 +8,7 @@ import { DB, Sequence, SequenceId, Session, Stack, StackId } from "./types";
 import { parseFile } from "./parser";
 import { createEnhancedJSONStorage } from "./storage";
 import { Category, CategoryId, DEFAULT_METADATA, Tag, TagId } from "./metadata";
-import { Query } from "./search";
+import { distribute } from "./session";
 
 const createStore = <T extends object>(
   name: string,
@@ -128,27 +128,6 @@ const sessionStore = createStore<Session>("session", {
   .extendActions((set) => ({
     /** Edit a stack. */
     editStack: mapEditor<Session, StackId, Stack>(set, "stacks"),
-    /** Start the session with everything that passes. */
-    init: () => {
-      let res: SequenceId | undefined;
-      set.state(({ stacks, stackOrder }) => {
-        // TODO: dedupe, randomize order
-        const all = Array.from(dbStore.get.sequences().values());
-        stacks.forEach((stack) => {
-          stack.index = 0;
-          stack.sequences = all
-            .filter((seq) => Query.pass(stack.query, seq))
-            .map((seq) => seq.id);
-        });
-        // TODO: should we just use set.pullFrom with get.current?
-        const topStack = stacks.get(stackOrder[0]);
-        if (topStack) {
-          res = topStack.sequences[0];
-          topStack.index = 1;
-        }
-      });
-      return res;
-    },
     /** Set ID as the current stack. */
     setCurrent: (id: StackId) =>
       set.state(({ stackOrder }) => {
@@ -168,6 +147,16 @@ const sessionStore = createStore<Session>("session", {
         stack.index = Math.min(stack.index + 1, stack.sequences.length - 1);
       });
       return res;
+    },
+  }))
+  .extendActions((set, get) => ({
+    /** Start the session with everything that passes. */
+    init: () => {
+      set.state(({ stacks }) => {
+        distribute(Array.from(dbStore.get.sequences().values()), stacks);
+      });
+      const top = get.current();
+      return top?.id && set.pullFrom(top.id);
     },
   }));
 
