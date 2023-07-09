@@ -15,7 +15,7 @@ import {
 import { produce } from "immer";
 import { RefObject, useRef, useState } from "react";
 import { Sequence } from "../lib/types";
-import { EditMetadata } from "./SeqMetadata";
+import { EditMetadata } from "./MetadataInfo";
 import { Metadata } from "../lib/metadata";
 import { actions } from "../lib/store";
 import EditCategories from "./EditCategories";

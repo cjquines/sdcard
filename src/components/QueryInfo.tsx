@@ -1,4 +1,10 @@
-import { Box } from "@chakra-ui/react";
+import {
+  Box,
+  BoxProps,
+  Flex,
+  FlexProps,
+  Tag as TagElement,
+} from "@chakra-ui/react";
 import {
   ActionMeta,
   MultiValue,
@@ -7,10 +13,26 @@ import {
   chakraComponents,
 } from "chakra-react-select";
 import { useCallback, useState } from "react";
-import { actions, useTracked } from "../lib/store";
+import { useTracked } from "../lib/store";
 import { CategoryId } from "../lib/metadata";
 import { LEVEL_MAP } from "../lib/types";
-import { OptionType, PartialSearchOption, SearchOption } from "../lib/search";
+import {
+  OptionType,
+  PartialSearchOption,
+  Query,
+  SearchOption,
+} from "../lib/search";
+
+export function ViewQueryInfo(props: { query: Query } & FlexProps) {
+  const { query } = props;
+  return (
+    <Flex gap={1} {...props}>
+      {query.map(({ label }) => (
+        <TagElement>{label}</TagElement>
+      ))}
+    </Flex>
+  );
+}
 
 /** Make a default option like "tag:" or "-tag:". */
 const makeDefaultOption = (
@@ -116,30 +138,18 @@ const useMakeOptions = () => {
   );
 };
 
-export default function DBSearch({ idx }: { idx?: number }) {
+export function EditQueryInfo(
+  props: { query: Query; setQuery: (value: Query) => void } & BoxProps,
+) {
+  const { query, setQuery } = props;
   const makeOptions = useMakeOptions();
   const makeDefaultOptions = useMakeDefaultOptions();
-
   const [input, setInput] = useState("");
   const [options, setOptions] = useState(makeDefaultOptions(false));
 
-  const query = useTracked().session.query();
-  const stacks = useTracked().session.stacks();
-
-  const value = idx !== undefined ? stacks[0].query : query;
-  const setValue = (value: SearchOption[]) => {
-    if (idx !== undefined) {
-      actions.session.state((state) => {
-        state.stacks[idx].query = value;
-      });
-    } else {
-      actions.session.query(value);
-    }
-  };
-
   const onInputChange = (input: string) => {
     // if we have a partial, then prepend it to input
-    const partial = value.find(SearchOption.isPartial);
+    const partial = query.find(SearchOption.isPartial);
     const modInput = !partial
       ? input
       : partial.label === "-"
@@ -150,7 +160,7 @@ export default function DBSearch({ idx }: { idx?: number }) {
     const option = options.find((option) => option.label === modInput);
     if (option) {
       setInput("");
-      onChange([...value, option], { action: "select-option", option });
+      onChange([...query, option], { action: "select-option", option });
       return;
     }
 
@@ -169,7 +179,7 @@ export default function DBSearch({ idx }: { idx?: number }) {
     ) {
       // partial case: generate new options
       // remove any partials (that aren't this one)
-      setValue(
+      setQuery(
         newValue.filter(
           (option) => option === action.option || SearchOption.isFull(option),
         ),
@@ -177,13 +187,13 @@ export default function DBSearch({ idx }: { idx?: number }) {
       setOptions(makeOptions(action.option));
     } else {
       // not partial case: generate partial options
-      setValue(newValue.filter(SearchOption.isFull));
+      setQuery(newValue.filter(SearchOption.isFull));
       setOptions(makeDefaultOptions(false));
     }
   };
 
   return (
-    <Box flex={1}>
+    <Box flex={1} {...props}>
       <Select<SearchOption, true>
         chakraStyles={{
           menu: (provided) => ({
@@ -198,7 +208,7 @@ export default function DBSearch({ idx }: { idx?: number }) {
         onInputChange={onInputChange}
         options={options}
         onChange={onChange}
-        value={value}
+        value={query}
       />
     </Box>
   );

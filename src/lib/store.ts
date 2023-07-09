@@ -4,7 +4,7 @@ import {
   mapValuesKey,
 } from "@udecode/zustood";
 import { StoreApi } from "zustand";
-import { DB, Sequence, SequenceId, Session } from "./types";
+import { DB, Sequence, SequenceId, Session, Stack, StackId } from "./types";
 import { parseFile } from "./parser";
 import { createEnhancedJSONStorage } from "./storage";
 import { Category, CategoryId, DEFAULT_METADATA, Tag, TagId } from "./metadata";
@@ -19,6 +19,26 @@ const createStore = <T extends object>(
     devtools: { enabled: true },
     ...options,
   });
+
+// typescript black magic, please ignore
+
+type KeyOfType<T, V> = keyof {
+  [K in keyof T as T[K] extends V ? K : never]: K;
+};
+
+type HasKeyOfType<T, V> = { [key in KeyOfType<T, V>]: V };
+
+const mapEditor =
+  <T, I, V>(
+    set: { state: (fn: (draft: HasKeyOfType<T, Map<I, V>>) => void) => void },
+    key: KeyOfType<T, Map<I, V>>,
+  ) =>
+  (id: I, edit: (value: V) => void) => {
+    set.state((state) => {
+      const value = state[key].get(id);
+      if (value) edit(value);
+    });
+  };
 
 const dbStore = createStore<DB>(
   "db",
@@ -37,26 +57,11 @@ const dbStore = createStore<DB>(
   },
 ).extendActions((set, get) => ({
   /** Edit a sequence. */
-  editSeq: (seqId: SequenceId, edit: (seq: Sequence) => void) => {
-    set.state((state) => {
-      const sequence = state.sequences.get(seqId);
-      if (sequence) edit(sequence);
-    });
-  },
+  editSeq: mapEditor<DB, SequenceId, Sequence>(set, "sequences"),
   /** Edit a category. */
-  editCategory: (categoryId: CategoryId, edit: (cat: Category) => void) => {
-    set.state((state) => {
-      const category = state.categories.get(categoryId);
-      if (category) edit(category);
-    });
-  },
-  /** Edit a category. */
-  editTag: (tagId: TagId, edit: (tag: Tag) => void) => {
-    set.state((state) => {
-      const tag = state.tags.get(tagId);
-      if (tag) edit(tag);
-    });
-  },
+  editCategory: mapEditor<DB, CategoryId, Category>(set, "categories"),
+  /** Edit a tag. */
+  editTag: mapEditor<DB, TagId, Tag>(set, "tags"),
   /**
    * Add a bunch of sequences to current db, removing duplicate times.
    * Returns number of sequences added.
@@ -84,68 +89,86 @@ const dbStore = createStore<DB>(
 
 const sessionStore = createStore<Session>("session", {
   autoTag: null,
+  ongoing: false,
   query: [],
-  stacks: [
-    {
-      name: "default",
-      query: [],
-      index: 0,
-      sequences: [],
-    },
-  ],
+  stacks: new Map(),
+  stackOrder: [],
 })
   .extendSelectors((state) => ({
-    /** Is the session ongoing? */
-    ongoing: () => state.stacks.some((stack) => stack.sequences.length !== 0),
+    /** Get the current stack. */
+    current: () => {
+      const { stackOrder, stacks } = state;
+      const topId = stackOrder[0];
+      if (!topId) return;
+      return stacks.get(topId);
+    },
+    /** Get the bottom of the specified stack (index - 1). */
+    bottomOf: (id: StackId) => {
+      const stack = state.stacks.get(id);
+      if (!stack) return;
+      const { sequences, index } = stack;
+      return sequences[index - 1];
+    },
+    /** Get top of specified stack. */
+    topOf: (id: StackId) => {
+      const stack = state.stacks.get(id);
+      if (!stack) return;
+      const { sequences, index } = stack;
+      return sequences[index];
+    },
+  }))
+  .extendSelectors((_, get) => ({
+    /** Get bottom of current stack. */
+    bottomOfCurrent: () => {
+      const stack = get.current();
+      if (!stack) return;
+      return get.bottomOf(stack.id);
+    },
   }))
   .extendActions((set) => ({
+    /** Edit a stack. */
+    editStack: mapEditor<Session, StackId, Stack>(set, "stacks"),
     /** Start the session with everything that passes. */
     init: () => {
       let res: SequenceId | undefined;
-      set.state((state) => {
+      set.state(({ stacks, stackOrder }) => {
         // TODO: dedupe, randomize order
         const all = Array.from(dbStore.get.sequences().values());
-        state.stacks.forEach((stack) => {
+        stacks.forEach((stack) => {
           stack.index = 0;
-          stack.sequences = all.filter((sequence) =>
-            Query.pass(stack.query, sequence),
-          );
+          stack.sequences = all
+            .filter((seq) => Query.pass(stack.query, seq))
+            .map((seq) => seq.id);
         });
-        res = state.stacks[0].sequences[0].id;
-        state.stacks[0].index = 1;
+        // TODO: should we just use set.pullFrom with get.current?
+        const topStack = stacks.get(stackOrder[0]);
+        if (topStack) {
+          res = topStack.sequences[0];
+          topStack.index = 1;
+        }
       });
       return res;
     },
-    /** Rotate until idx is the current stack. */
-    rotate: (idx: number) =>
-      set.state((state) => {
-        state.stacks.push(...state.stacks.splice(0, idx));
+    /** Set ID as the current stack. */
+    setCurrent: (id: StackId) =>
+      set.state(({ stackOrder }) => {
+        const idx = stackOrder.findIndex((id_) => id_ === id);
+        if (idx !== -1) {
+          stackOrder.splice(idx, 1);
+        }
+        stackOrder.unshift(id);
       }),
-    /** Move the index of the current stack back. */
-    unpop: () =>
-      set.state((state) => {
-        state.stacks[0].index -= 1;
-      }),
-    /** Pop the top sequence from the stack. */
-    pop: () => {
-      let res: SequenceId | undefined;
-      set.state((state) => {
-        const stack = state.stacks[0];
-        res = stack.sequences[stack.index].id;
-        stack.index += 1;
+  }))
+  .extendActions((set, get) => ({
+    /** Pull from that stack. */
+    pullFrom: (id: StackId) => {
+      const res = get.topOf(id);
+      set.setCurrent(id);
+      set.editStack(id, (stack) => {
+        stack.index = Math.min(stack.index + 1, stack.sequences.length - 1);
       });
       return res;
     },
-    /** Stop the session. */
-    stop: () =>
-      set.stacks([
-        {
-          name: "default",
-          query: [],
-          index: 0,
-          sequences: [],
-        },
-      ]),
   }));
 
 const rootStore = {

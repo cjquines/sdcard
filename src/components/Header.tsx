@@ -11,16 +11,18 @@ import {
 import { FormEventHandler, useRef, useState } from "react";
 import { actions, useTracked } from "../lib/store";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import DBSearch from "./DBSearch";
 import SimpleModal from "./SimpleModal";
 import TagSelect from "./TagSelect";
+import { EditQueryInfo } from "./QueryInfo";
+import { EditStackInfo } from "./StackInfo";
 
 function SessionModal() {
   const navigate = useNavigate();
   const autoTag = useTracked().session.autoTag();
   const ongoing = useTracked().session.ongoing();
+  const stackOrder = useTracked().session.stackOrder();
 
-  const onStop = actions.session.stop;
+  const onStop = () => actions.session.ongoing(false);
   const onConfirm = () => {
     const topSeq = actions.session.init();
     if (topSeq) {
@@ -40,10 +42,9 @@ function SessionModal() {
           <FormLabel>Auto-tag:</FormLabel>
           <TagSelect rawValue={autoTag} onChange={actions.session.autoTag} />
         </FormControl>
-        <FormControl>
-          <FormLabel>Query 1:</FormLabel>
-          <DBSearch idx={0} />
-        </FormControl>
+        {stackOrder.map((id) => (
+          <EditStackInfo key={id} id={id} />
+        ))}
       </Flex>
     </SimpleModal>
   );
@@ -110,6 +111,9 @@ function ImportModal() {
 }
 
 export default function Header() {
+  const query = useTracked().session.query();
+  const setQuery = actions.session.query;
+
   return (
     <Flex as="header" justify="center" w="100%" shadow="sm">
       <Flex align="center" flex="1" maxW="8xl" m="3" gap="3">
@@ -118,7 +122,7 @@ export default function Header() {
             sdcard
           </Link>
         </Heading>
-        <DBSearch />
+        <EditQueryInfo query={query} setQuery={setQuery} />
         <SessionModal />
         <ImportModal />
       </Flex>

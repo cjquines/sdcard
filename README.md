@@ -8,6 +8,7 @@ feat:
 - sessions
   - resuming sessions
   - maybe don't do the stack lol, just use an array and keep index
+    - edit stacks, view stacks
     - resort by "dissimilarity"
       - length of comment, number of comments, length of sequence, number of warnings
 - header

@@ -13,7 +13,7 @@ import { useNavigate, useParams } from "react-router";
 import { actions, useTracked } from "../lib/store";
 import { Call, SequenceId } from "../lib/types";
 import { EditSeqInfo } from "./SeqInfo";
-import StackView from "./StackView";
+import { ViewStackInfo } from "./StackInfo";
 
 function CallBox(props: { call: Call } & BoxProps) {
   const { call, comment, warnings } = props.call;
@@ -39,7 +39,8 @@ export default function SeqView() {
   const [willAutoTag, setWillAutoTag] = useState(true);
   const autoTag = useTracked().session.autoTag();
   const ongoing = useTracked().session.ongoing();
-  const stacks = useTracked().session.stacks();
+  const current = useTracked().session.current();
+  const stackOrder = useTracked().session.stackOrder();
 
   useEffect(() => {
     if (seq && autoTag && willAutoTag) {
@@ -61,20 +62,21 @@ export default function SeqView() {
   useHotkeys(
     "left",
     () => {
-      if (seq) {
-        actions.session.unpop();
-        navigate(-1);
-      }
+      if (!current) return;
+      actions.session.editStack(current.id, (stack) => {
+        stack.index -= 1;
+      });
+      navigate(-1);
     },
     { preventDefault: true },
   );
   useHotkeys(
     "right",
     () => {
-      const next = actions.session.pop();
-      if (next) {
-        navigate(`/sequence/${next}`);
-      }
+      if (!current) return;
+      const next = actions.session.pullFrom(current.id);
+      if (!next) return;
+      navigate(`/sequence/${next}`);
     },
     { preventDefault: true },
   );
@@ -87,7 +89,7 @@ export default function SeqView() {
   return (
     <Flex w="100%" gap={4}>
       <Flex direction="column" gap={4} w="sm">
-        <EditSeqInfo seq={seq} />
+        <EditSeqInfo id={seq.id} />
         {!ongoing || !autoTag ? null : (
           <FormControl display="flex" gap={2}>
             <Switch
@@ -105,8 +107,8 @@ export default function SeqView() {
         ))}
       </Flex>
       <Flex direction="column" gap={4}>
-        {stacks.map((_, idx) => (
-          <StackView idx={idx} />
+        {stackOrder.map((id) => (
+          <ViewStackInfo id={id} />
         ))}
       </Flex>
     </Flex>

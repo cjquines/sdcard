@@ -11,10 +11,10 @@ import {
   TextProps,
 } from "@chakra-ui/react";
 
-import { Level, Sequence } from "../lib/types";
+import { Level, SequenceId } from "../lib/types";
 import { fullFormatDate, fuzzyFormatDate } from "../lib/dates";
 import { actions, useTracked } from "../lib/store";
-import { EditMetadata, ViewMetadata } from "./SeqMetadata";
+import { EditMetadata, ViewMetadata } from "./MetadataInfo";
 import { TagId } from "../lib/metadata";
 
 const LEVEL_COLOR = {
@@ -53,7 +53,6 @@ export function DateText(props: { date: number; full?: boolean } & TextProps) {
 export function TagTag(props: { tagId: TagId } & TagProps) {
   const { tagId } = props;
   const { name } = useTracked().db.tags().get(tagId) ?? { name: "" };
-
   return <TagElement {...props}>{name}</TagElement>;
 }
 
@@ -61,8 +60,10 @@ export function TagTag(props: { tagId: TagId } & TagProps) {
  * A card showing a sequence's info, that can be clicked to navigate to that
  * sequence.
  */
-export function ViewSeqInfo(props: { seq: Sequence } & FlexProps) {
-  const { seq } = props;
+export function ViewSeqInfo(props: { id: SequenceId } & FlexProps) {
+  const { id } = props;
+  const seq = useTracked().db.sequences().get(id);
+  if (!seq) return null;
   const { date, level, comment } = seq;
 
   return (
@@ -91,12 +92,15 @@ export function ViewSeqInfo(props: { seq: Sequence } & FlexProps) {
   );
 }
 
-/** A view for editing a sequence's info. */
-export function EditSeqInfo({ seq }: { seq: Sequence }) {
-  const { id, date, level, comment } = seq;
+/** A "card" for editing a sequence's info. */
+export function EditSeqInfo(props: { id: SequenceId } & FlexProps) {
+  const { id } = props;
+  const seq = useTracked().db.sequences().get(id);
+  if (!seq) return null;
+  const { date, level, comment } = seq;
 
   return (
-    <Flex direction="column" gap="2">
+    <Flex direction="column" gap="2" {...props}>
       <Flex gap="2">
         <LevelTag level={level} />
         <DateText date={date} full={true} />

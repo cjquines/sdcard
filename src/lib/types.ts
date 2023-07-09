@@ -110,18 +110,30 @@ export type DB = {
  * list of sequences.
  */
 export type Stack = {
+  readonly id: Brand<string, "StackId">;
   name: string;
   query: Query;
+  sequences: SequenceId[];
+  /**
+   * Shows the *next sequence* we would show from this stack. In particular,
+   * if this is the current stack, we'd be showing sequences[index - 1].
+   */
   index: number;
-  sequences: Sequence[];
 };
+
+export type StackId = Stack["id"];
+export const StackId = makeBrander<StackId>();
 
 /** A Session represents session-local state. */
 export type Session = {
   /** Add this tag to all sequences we view. */
   autoTag: TagId | null;
+  /** Is there an ongoing "session"? */
+  ongoing: boolean;
   /** The global query. */
   query: Query;
   /** The stacks of sequences. */
-  stacks: Stack[];
+  stacks: Map<StackId, Stack>;
+  /** The order of the stacks. */
+  stackOrder: StackId[];
 };
