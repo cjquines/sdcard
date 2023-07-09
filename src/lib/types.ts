@@ -1,6 +1,5 @@
 import { Brand, make as makeBrander } from "ts-brand";
 import { Category, CategoryId, Metadata, Tag, TagId } from "./metadata";
-import { Query } from "./search";
 
 /** A dancer is one of the eight people in the square. */
 export enum Dancer {
@@ -103,37 +102,4 @@ export type DB = {
   sequences: Map<SequenceId, Sequence>;
   categories: Map<CategoryId, Category>;
   tags: Map<TagId, Tag>;
-};
-
-/**
- * A stack of cards is a query of matching sequences, plus an index into a
- * list of sequences.
- */
-export type Stack = {
-  readonly id: Brand<string, "StackId">;
-  name: string;
-  query: Query;
-  sequences: SequenceId[];
-  /**
-   * Shows the *next sequence* we would show from this stack. In particular,
-   * if this is the current stack, we'd be showing sequences[index - 1].
-   */
-  index: number;
-};
-
-export type StackId = Stack["id"];
-export const StackId = makeBrander<StackId>();
-
-/** A Session represents session-local state. */
-export type Session = {
-  /** Add this tag to all sequences we view. */
-  autoTag: TagId | null;
-  /** Is there an ongoing "session"? */
-  ongoing: boolean;
-  /** The global query. */
-  query: Query;
-  /** The stacks of sequences. */
-  stacks: Map<StackId, Stack>;
-  /** The order of the stacks. */
-  stackOrder: StackId[];
 };

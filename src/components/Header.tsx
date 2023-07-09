@@ -14,13 +14,12 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import SimpleModal from "./SimpleModal";
 import TagSelect from "./TagSelect";
 import { EditQueryInfo } from "./QueryInfo";
-import { EditStackInfo } from "./StackInfo";
+import EditStacks from "./EditStacks";
 
 function SessionModal() {
   const navigate = useNavigate();
   const autoTag = useTracked().session.autoTag();
   const ongoing = useTracked().session.ongoing();
-  const stackOrder = useTracked().session.stackOrder();
 
   const onStop = () => actions.session.ongoing(false);
   const onConfirm = () => {
@@ -42,9 +41,7 @@ function SessionModal() {
           <FormLabel>Auto-tag:</FormLabel>
           <TagSelect rawValue={autoTag} onChange={actions.session.autoTag} />
         </FormControl>
-        {stackOrder.map((id) => (
-          <EditStackInfo key={id} id={id} />
-        ))}
+        <EditStacks />
       </Flex>
     </SimpleModal>
   );

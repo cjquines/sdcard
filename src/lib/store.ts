@@ -4,11 +4,11 @@ import {
   mapValuesKey,
 } from "@udecode/zustood";
 import { StoreApi } from "zustand";
-import { DB, Sequence, SequenceId, Session, Stack, StackId } from "./types";
+import { DB, Sequence, SequenceId } from "./types";
 import { parseFile } from "./parser";
 import { createEnhancedJSONStorage } from "./storage";
 import { Category, CategoryId, DEFAULT_METADATA, Tag, TagId } from "./metadata";
-import { distribute } from "./session";
+import { Session, Stack, StackId, distribute } from "./session";
 
 const createStore = <T extends object>(
   name: string,
@@ -144,7 +144,7 @@ const sessionStore = createStore<Session>("session", {
       const res = get.topOf(id);
       set.setCurrent(id);
       set.editStack(id, (stack) => {
-        stack.index = Math.min(stack.index + 1, stack.sequences.length - 1);
+        stack.index = Math.min(stack.index + 1, stack.sequences.length);
       });
       return res;
     },

@@ -1,9 +1,9 @@
-import { Flex, FormControl, FormLabel, Text } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
 import { actions, useTracked } from "../lib/store";
 import { ViewSeqInfo } from "./SeqInfo";
-import { StackId } from "../lib/types";
-import { EditQueryInfo, ViewQueryInfo } from "./QueryInfo";
+import { ViewQueryInfo } from "./QueryInfo";
+import { StackId } from "../lib/session";
 
 export function ViewStackInfo({ id }: { id: StackId }) {
   const stack = useTracked().session.stacks().get(id);
@@ -28,25 +28,5 @@ export function ViewStackInfo({ id }: { id: StackId }) {
       </Text>
       {top ? <ViewSeqInfo id={top} onClick={onClick} /> : <Text>(empty)</Text>}
     </Flex>
-  );
-}
-
-export function EditStackInfo({ id }: { id: StackId }) {
-  const stack = useTracked().session.stacks().get(id);
-  if (!stack) return null;
-  const { query } = stack;
-
-  return (
-    <FormControl>
-      <FormLabel>Query 1:</FormLabel>
-      <EditQueryInfo
-        query={query}
-        setQuery={(query) =>
-          actions.session.editStack(id, (stack) => {
-            stack.query = query;
-          })
-        }
-      />
-    </FormControl>
   );
 }

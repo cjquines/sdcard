@@ -72,6 +72,11 @@ export function score(sequence: Sequence) {
  * queries. Mutates stacks.
  */
 export function distribute(sequences: Sequence[], stacks: Map<StackId, Stack>) {
+  // clear existing
+  stacks.forEach((stack) => {
+    stack.sequences = [];
+  });
+
   const seqs = sequences
     .map((seq) => ({
       seq,
