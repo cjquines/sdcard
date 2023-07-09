@@ -1,14 +1,17 @@
 fix:
 
-- clicking does not pop sequence
-- reorganize component names lol
+- stacks
+  - show stacks on side only if in-session
+  - make stacks prettier
+- debt
+  - search -> filter
+  - types.ts -> db.ts?
+  - reorganize component names lol
 
 feat:
 
 - sessions
   - resuming sessions
-  - maybe don't do the stack lol, just use an array and keep index
-    - edit stacks, view stacks
 - header
   - saving queries
   - switching between saved queries
@@ -18,11 +21,12 @@ feat:
   - edit visible columns
   - sorting columns, persist
   - show number selected
-- between sequences:
-  - show the next satisfying whatever query
-    - maybe each has their own query box even?
-  - auto-add a tag when going next (that's in the bottom of the sequence editor?)
+- seqview
   - heads/sides changing
+- filters
+  - restructure filter types
+  - filter by comment
+  - date, date comparators
 
 stretch:
 

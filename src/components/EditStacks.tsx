@@ -1,6 +1,5 @@
 import {
   Button,
-  Divider,
   Editable,
   EditableInput,
   EditablePreview,
@@ -74,7 +73,6 @@ export default function EditStacks() {
                 }
               />
             </Flex>
-            <Divider />
           </>
         ))}
       <Button onClick={onAdd} mt={2}>
