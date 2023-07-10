@@ -3,6 +3,7 @@ fix:
 - stacks
   - show stacks on side only if in-session
   - make stacks prettier
+  - i should still be able to switch between sequences out of session
 - debt
   - search -> filter
   - types.ts -> db.ts?
@@ -11,6 +12,9 @@ fix:
     - a form edits
     - generic smaller ui
     - containers
+  - definitely not use ag grid, it resorts every time something changes...
+- tags
+  - autocomplete shows id, not name (hotfixed)
 
 feat:
 

@@ -34,12 +34,14 @@ type FullSearchOption = {
         type: OptionType.CATEGORY;
         negated: boolean;
         text: string;
-        category: CategoryId;
+        id: CategoryId;
+        category: string;
       }
     | {
         type: OptionType.TAG;
         negated: boolean;
-        text: TagId;
+        id: TagId;
+        text: string;
       }
     | {
         type: OptionType.LEVEL;
@@ -109,10 +111,10 @@ function optionPass(option: SearchOption, sequence: Sequence): boolean {
   const result = (() => {
     switch (type) {
       case OptionType.CATEGORY: {
-        return sequence.categories.get(option.value.category) === text;
+        return sequence.categories.get(option.value.id) === text;
       }
       case OptionType.TAG: {
-        return sequence.tags.has(text);
+        return sequence.tags.has(option.value.id);
       }
       case OptionType.LEVEL: {
         return sequence.level === text;

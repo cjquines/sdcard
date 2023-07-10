@@ -110,7 +110,8 @@ const useMakeOptions = () => {
                 type: OptionType.CATEGORY,
                 text: option,
                 negated,
-                category,
+                id: category,
+                category: categories.get(category)?.name ?? "",
               }),
           );
         }
@@ -127,7 +128,8 @@ const useMakeOptions = () => {
           return Array.from(tags.keys()).map((tag) =>
             SearchOption.make({
               type: OptionType.TAG,
-              text: tag,
+              id: tag,
+              text: tags.get(tag)?.name ?? "",
               negated,
             }),
           );
