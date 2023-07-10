@@ -1,4 +1,5 @@
 import { CategoryId, TagId } from "./metadata";
+import { score } from "./session";
 import { Level, Sequence } from "./types";
 
 /**
@@ -11,6 +12,7 @@ export enum OptionType {
   LEVEL = "level:",
   PARTIAL = "partial:",
   TAG = "tag:",
+  MAX_SCORE = "maxScore:",
 }
 
 const MAP = new Map<string, OptionType>(
@@ -47,6 +49,11 @@ type FullSearchOption = {
         type: OptionType.LEVEL;
         negated: boolean;
         text: Level;
+      }
+    | {
+        type: OptionType.MAX_SCORE;
+        negated: boolean;
+        text: number;
       };
 };
 
@@ -82,8 +89,11 @@ function makeLabel(value: SearchOption["value"]): string {
     pieces.push(type);
   }
 
-  if (type !== OptionType.PARTIAL && text) {
+  if (type !== OptionType.PARTIAL && type !== OptionType.MAX_SCORE && text) {
     pieces.push(` ${text}`);
+  }
+  if (type === OptionType.MAX_SCORE && text) {
+    pieces.push(` ${text.toString().padStart(2, "0")}`);
   }
 
   return pieces.map((s) => s.toLowerCase()).join("");
@@ -118,6 +128,9 @@ function optionPass(option: SearchOption, sequence: Sequence): boolean {
       }
       case OptionType.LEVEL: {
         return sequence.level === text;
+      }
+      case OptionType.MAX_SCORE: {
+        return score(sequence) < option.value.text;
       }
       case OptionType.PARTIAL: {
         return true;

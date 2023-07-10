@@ -33,6 +33,7 @@ feat:
   - heads/sides changing
 - filters
   - restructure filter types
+    - support numerical filters
   - filter by comment
   - date, date comparators
 

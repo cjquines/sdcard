@@ -134,6 +134,17 @@ const useMakeOptions = () => {
             }),
           );
         }
+        case OptionType.MAX_SCORE: {
+          return Array(100)
+            .fill(null)
+            .map((_, i) =>
+              SearchOption.make({
+                type: OptionType.MAX_SCORE,
+                text: i,
+                negated,
+              }),
+            );
+        }
       }
     },
     [categories, tags, makeDefaultOptions],
