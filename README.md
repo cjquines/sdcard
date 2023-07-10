@@ -7,6 +7,10 @@ fix:
   - search -> filter
   - types.ts -> db.ts?
   - reorganize component names lol
+    - a view renders, and does not call apis
+    - a form edits
+    - generic smaller ui
+    - containers
 
 feat:
 
