@@ -2,8 +2,17 @@ fix:
 
 - stacks
   - show stacks on side only if in-session
+    - i need space for my music player!
   - make stacks prettier
   - i should still be able to switch between sequences out of session
+  - want "global" filters, for all the stacks
+  - want to reorder stacks (out of session)
+- seqview
+  - "back" should just be back within the stack, not using navigate(-1)
+  - don't crash when i back from seq 1 or forward from last seq
+  - investigate local state changes when moving between sequences
+    - possible cause of errors?
+  - editing sequence metadata resets local state
 - debt
   - search -> filter
   - types.ts -> db.ts?
@@ -15,6 +24,7 @@ fix:
   - definitely not use ag grid, it resorts every time something changes...
 - tags
   - autocomplete shows id, not name (hotfixed)
+  - i can't remove autotags
 
 feat:
 

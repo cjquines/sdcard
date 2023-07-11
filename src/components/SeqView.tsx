@@ -101,12 +101,12 @@ export default function SeqView() {
         )}
       </Flex>
       <Flex direction="column" flex={1} gap={4}>
-        <CallBox call={present} />
+        {present && <CallBox call={present} />}
         {future.map((call, idx) => (
           <CallBox key={idx} call={call} opacity={callIdx > 0 ? 0.3 : 1} />
         ))}
       </Flex>
-      <Flex direction="column" gap={4}>
+      <Flex direction="column" gap={4} w="sm">
         {stackOrder.map((id) => (
           <ViewStackInfo id={id} />
         ))}
