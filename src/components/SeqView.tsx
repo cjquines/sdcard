@@ -63,10 +63,9 @@ export default function SeqView() {
     "left",
     () => {
       if (!current) return;
-      actions.session.editStack(current.id, (stack) => {
-        stack.index -= 1;
-      });
-      navigate(-1);
+      const next = actions.session.pushTo(current.id);
+      if (!next) return;
+      navigate(`/sequence/${next}`);
     },
     { preventDefault: true },
   );

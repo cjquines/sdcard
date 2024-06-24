@@ -76,7 +76,7 @@ export default function EditStacks() {
           </>
         ))}
       <Button onClick={onAdd} mt={2}>
-        Add
+        Add stack
       </Button>
     </Flex>
   );

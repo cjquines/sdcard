@@ -148,6 +148,15 @@ const sessionStore = createStore<Session>("session", {
       });
       return res;
     },
+    /** Push to stack. */
+    pushTo: (id: StackId) => {
+      const res = get.bottomOf(id);
+      set.setCurrent(id);
+      set.editStack(id, (stack) => {
+        stack.index = Math.max(stack.index - 1, 0);
+      });
+      return res;
+    },
   }))
   .extendActions((set, get) => ({
     /** Start the session with everything that passes. */

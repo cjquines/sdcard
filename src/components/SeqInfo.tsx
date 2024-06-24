@@ -16,6 +16,7 @@ import { fullFormatDate, fuzzyFormatDate } from "../lib/dates";
 import { actions, useTracked } from "../lib/store";
 import { EditMetadata, ViewMetadata } from "./MetadataInfo";
 import { TagId } from "../lib/metadata";
+import { score } from "../lib/session";
 
 const LEVEL_COLOR = {
   [Level.MS]: "cyan",
@@ -85,7 +86,7 @@ export function ViewSeqInfo(props: { id: SequenceId } & FlexProps) {
         <DateText date={date} full={false} />
       </Flex>
       <Text fontSize="lg" color={comment === "" ? "gray.400" : "inherit"}>
-        {comment ?? "(no comment)"}
+        {comment || "(no comment)"}
       </Text>
       <ViewMetadata meta={seq} />
     </Flex>
@@ -120,6 +121,7 @@ export function EditSeqInfo(props: { id: SequenceId } & FlexProps) {
         <EditableInput />
       </Editable>
       <Divider />
+      <Text color="gray">Score: {score(seq)}</Text>
       <EditMetadata
         meta={seq}
         setMeta={(edit) => actions.db.editSeq(seq.id, edit)}
